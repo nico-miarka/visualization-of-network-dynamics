@@ -1,8 +1,8 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
-
 import { getState, updateState, getStateChanges } from './state.js'
-import color from './color.js'
-import * as cr from './cr.js'
+import {colorRefinement} from './cr.js'
+import { randomGraph } from './graph.js'
+import {highlightColor, resetHighlightColor,pulser,radialPoint,radius,color} from './visuals.js'
 
 let simulation
 let treesPerRound
@@ -10,49 +10,16 @@ let hoveringNode
 let draggingNode
 let hoveringTreeRound
 
-/** Highlight nodes, links, and tree on a mouseover event
-  * @param {Number} i is the color to be highlighted
-  * @param {Number} round is the round that the color i refers to
-  */
-function highlightColor (i, round) {
-  d3.selectAll('circle.graphNode').attr('class', o => o.crtree[round].rank === i ? 'graphNode highlight' : 'graphNode nonhighlight')
-  d3.selectAll('line.graphEdge').attr('class', o => (o.source.crtree[round].rank === i &&
-     o.target.crtree[round].rank === i) ? 'graphEdge highlight' : 'graphEdge nonhighlight')
-  d3.selectAll('#crtrees svg').classed('nonhighlight', true)
-  d3.select('#crtree' + i).classed('nonhighlight', false).classed('highlight', true)
-}
 
-/** Reset all highlights (e.g. when the mouseover event is over) */
-function resetHighlightColor () {
-  d3.selectAll('#crtrees svg').classed('highlight', false).classed('nonhighlight', false)
-  d3.selectAll('circle.graphNode').classed('highlight', false).classed('nonhighlight', false)
-  d3.selectAll('line.graphEdge').classed('highlight', false).classed('nonhighlight', false)
-}
-
-/** Pulse all nodes of a given color (e.g., when a tree has been clicked)
-  * @param {Number} i is the color that should be pulsed
-  * @param {Number} round is the round that the color i refers to
-  * @return {Function} is a function that, when called, performs the pulse
-  */
-function pulser (i, round) {
-  return function () {
-    d3.selectAll('circle.graphNode')
-      .transition()
-      .duration(100)
-      .attr('r', v => radius(v) + (v.crtree[round].rank === i ? 8 : 0))
-      .transition()
-      .duration(200)
-      .attr('r', radius)
-  }
-}
-
-/** Radial to Cartesian coordinates
-  * @param {Number} x
-  * @param {Number} y
-  * @return {NumberPair} [x', y']
-  */
-function radialPoint (x, y) {
-  return [(y = +y) * Math.cos(x -= Math.PI / 2), y * Math.sin(x)]
+/** Recenter the simulation (e.g. after window resize event) */
+function recenter () {
+  const w = document.getElementById('main').offsetWidth
+  const h = document.getElementById('main').offsetHeight
+  simulation
+    .force('center', d3.forceCenter(w / 2, h / 2))
+    .force('xAxis', d3.forceX(w / 2).strength(0.1))
+    .force('yAxis', d3.forceY(h / 2).strength(0.1))
+    .alpha(1).restart()
 }
 
 /** Draw the CR trees
@@ -109,25 +76,6 @@ async function drawTrees (state, trees) {
   crtrees.classed('loading', false)
 }
 
-/** Compute radius of a node.
-  * @param {Node} v
-  * @return {Number} the radius of the node scales with its degree
-  */
-function radius (v) {
-  return 5 * Math.sqrt(v.neighbors.length) + 4
-}
-
-/** Recenter the simulation (e.g. after window resize event) */
-function recenter () {
-  const w = document.getElementById('main').offsetWidth
-  const h = document.getElementById('main').offsetHeight
-  simulation
-    .force('center', d3.forceCenter(w / 2, h / 2))
-    .force('xAxis', d3.forceX(w / 2).strength(0.1))
-    .force('yAxis', d3.forceY(h / 2).strength(0.1))
-    .alpha(1).restart()
-}
-
 /** Sample and draw new graph
   * Also draws CR trees, sets up mouseover events, and starts the simulation
   */
@@ -147,8 +95,8 @@ async function reload (forceResample = false) {
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
-    const graph = cr.randomGraph(state.n, state.m, state.seed)
-    treesPerRound = cr.colorRefinement(graph)
+    const graph = randomGraph(state.n, state.m, state.seed)
+    treesPerRound = colorRefinement(graph)
     document.getElementById('numRounds').innerText = treesPerRound.length - 1
 
     simulation
