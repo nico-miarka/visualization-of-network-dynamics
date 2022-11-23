@@ -1,5 +1,3 @@
-import {radialPoint, highlightColor, resetHighlightColor, pulser, color} from './visuals.js'
-let treesPerRound
 /** Compare two trees
   * @param {Tree} T1 is the first tree
   * @param {Tree} T2 is the second tree
@@ -45,4 +43,58 @@ export function findTree (treelist, T) {
       }
     }
     return -1
+}
+
+/** Draw the CR trees
+  * @param {Dictionary} state the current program state
+  * @param {TreeList} trees a list of tree objects
+  */
+ async function drawTrees (state, trees) {
+  if (!state.crtrees) return
+
+  const d3treeMaker = d3.tree().size([2 * Math.PI, 30])
+    .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth)
+
+  const crtrees = d3.select('#crtrees')
+  crtrees.selectAll('div').remove()
+  crtrees.classed('loading', true)
+  for (let i = 0; i < trees.length; i++) {
+    const root = d3.hierarchy(trees[i])
+    root.sort()
+    const d3tree = d3treeMaker(root)
+
+    root.each((v) => {
+      [v.x, v.y] = radialPoint(v.x, v.y);
+      [v.x, v.y] = [v.x + 46, v.y + 46]
+    })
+
+    const div = d3.create('div')
+    const svg = div.append('svg').attr('id', 'crtree' + i)
+      .style('background-color',
+        color(i, trees.length, state.round, treesPerRound.length))
+
+    div.append('div').classed('count', true).text(trees[i].class.length)
+
+    svg.selectAll('line.treeEdge')
+      .data(d3tree.links())
+      .enter().append('line').classed('treeEdge', true)
+      .attr('x1', e => e.source.x)
+      .attr('y1', e => e.source.y)
+      .attr('x2', e => e.target.x)
+      .attr('y2', e => e.target.y)
+
+    svg.selectAll('circle.treeNode')
+      .data(root.descendants())
+      .enter().append('circle').classed('treeNode', true)
+      .classed('rootNode', v => v.parent === null)
+      .attr('r', v => v.parent === null ? 5 : 2.5)
+      .attr('cx', v => v.x)
+      .attr('cy', v => v.y)
+
+    div.on('mouseover', () => { hoveringTreeRound = state.round; highlightColor(i, state.round) })
+    div.on('mouseout', () => { hoveringTreeRound = undefined; resetHighlightColor() })
+    div.on('click', pulser(i, state.round))
+    crtrees.insert(() => div.node(), 'div.loading-animation')
+  }
+  crtrees.classed('loading', false)
 }

@@ -1,14 +1,11 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from './state.js'
-import {colorRefinement} from './cr.js'
 import { randomGraph } from './graph.js'
-import {highlightColor, resetHighlightColor,pulser,radialPoint,radius,color} from './visuals.js'
 
 let simulation
 let treesPerRound
 let hoveringNode
 let draggingNode
-let hoveringTreeRound
 
 
 /** Recenter the simulation (e.g. after window resize event) */
@@ -22,71 +19,17 @@ function recenter () {
     .alpha(1).restart()
 }
 
-/** Draw the CR trees
-  * @param {Dictionary} state the current program state
-  * @param {TreeList} trees a list of tree objects
-  */
-async function drawTrees (state, trees) {
-  if (!state.crtrees) return
-
-  const d3treeMaker = d3.tree().size([2 * Math.PI, 30])
-    .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth)
-
-  const crtrees = d3.select('#crtrees')
-  crtrees.selectAll('div').remove()
-  crtrees.classed('loading', true)
-  for (let i = 0; i < trees.length; i++) {
-    const root = d3.hierarchy(trees[i])
-    root.sort()
-    const d3tree = d3treeMaker(root)
-
-    root.each((v) => {
-      [v.x, v.y] = radialPoint(v.x, v.y);
-      [v.x, v.y] = [v.x + 46, v.y + 46]
-    })
-
-    const div = d3.create('div')
-    const svg = div.append('svg').attr('id', 'crtree' + i)
-      .style('background-color',
-        color(i, trees.length, state.round, treesPerRound.length))
-
-    div.append('div').classed('count', true).text(trees[i].class.length)
-
-    svg.selectAll('line.treeEdge')
-      .data(d3tree.links())
-      .enter().append('line').classed('treeEdge', true)
-      .attr('x1', e => e.source.x)
-      .attr('y1', e => e.source.y)
-      .attr('x2', e => e.target.x)
-      .attr('y2', e => e.target.y)
-
-    svg.selectAll('circle.treeNode')
-      .data(root.descendants())
-      .enter().append('circle').classed('treeNode', true)
-      .classed('rootNode', v => v.parent === null)
-      .attr('r', v => v.parent === null ? 5 : 2.5)
-      .attr('cx', v => v.x)
-      .attr('cy', v => v.y)
-
-    div.on('mouseover', () => { hoveringTreeRound = state.round; highlightColor(i, state.round) })
-    div.on('mouseout', () => { hoveringTreeRound = undefined; resetHighlightColor() })
-    div.on('click', pulser(i, state.round))
-    crtrees.insert(() => div.node(), 'div.loading-animation')
-  }
-  crtrees.classed('loading', false)
-}
-
 /** Sample and draw new graph
   * Also draws CR trees, sets up mouseover events, and starts the simulation
   */
 async function reload (forceResample = false) {
+  const NODECOLOR = '#89CFF0'
   const svg = d3.select('main > svg')
   const state = getState()
   const changedFields = getStateChanges(state)
   if (forceResample || changedFields === undefined || changedFields.has('n') || changedFields.has('m') || changedFields.has('seed')) {
     hoveringNode = undefined
     draggingNode = undefined
-    resetHighlightColor()
     svg.selectAll('*').remove()
     d3.select('main').classed('loading', true)
     const w = document.getElementById('main').offsetWidth
@@ -96,8 +39,6 @@ async function reload (forceResample = false) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
     const graph = randomGraph(state.n, state.m, state.seed)
-    treesPerRound = colorRefinement(graph)
-    document.getElementById('numRounds').innerText = treesPerRound.length - 1
 
     simulation
       .nodes(graph.vertices)
@@ -126,19 +67,8 @@ async function reload (forceResample = false) {
           if (!event.active) simulation.alphaTarget(0);
           [v.fx, v.fy] = [null, null]
         }))
-      .on('mouseover', (_, v) => {
-        hoveringNode = v
-        const round = getState().round
-        if (draggingNode === undefined) highlightColor(v.crtree[round].rank, round)
-      })
-      .on('mouseout', () => {
-        hoveringNode = undefined
-        if (draggingNode === undefined) resetHighlightColor()
-      })
-
     recenter()
     d3.select('main').classed('loading', false)
-    state.round = Math.min(state.round, treesPerRound.length - 1)
     updateState(state, true)
     changedFields.add('round')
   } else {
@@ -150,39 +80,9 @@ async function reload (forceResample = false) {
   if (changedFields !== undefined && changedFields.size !== 0) {
     drawNavElements(state)
   }
-  if (changedFields.has('round')) {
-    if (hoveringTreeRound) {
-      hoveringTreeRound = undefined
-      resetHighlightColor()
-    }
-
-    drawTrees(state, treesPerRound[state.round])
-    changedFields.add('count')
-
-    if (draggingNode || hoveringNode) {
-      const activeNode = draggingNode || hoveringNode
-      highlightColor(activeNode.crtree[state.round].rank, state.round)
-    }
-
-    changedFields.add('count')
-
-    /* Change node colors based on current round */
-    d3.selectAll('circle.graphNode').attr('fill', v => {
-      return color(v.crtree[state.round].rank, treesPerRound[state.round].length, state.round, treesPerRound.length)
-    })
-
-    /* Pulse all nodes */
-    svg.selectAll('circle.graphNode')
-      .transition().duration(200).attr('r', v => radius(v) + 2)
-      .transition().duration(200).attr('r', radius)
-  }
-  if (changedFields.has('count')) {
-    if (state.count) {
-      d3.selectAll('div.count').style('display', 'block')
-    } else {
-      d3.selectAll('div.count').style('display', 'none')
-    }
-  }
+  /**color */
+  d3.selectAll('circle.graphNode').attr('fill', NODECOLOR
+  )
 }
 
 function addto (field, stepsize, min, max) {
@@ -210,9 +110,7 @@ const toggle = field => { const state = getState(); state[field] = !state[field]
 
 function shortcuts (event) {
   if (!event.ctrlKey && !event.altKey) {
-    if (['ArrowLeft', 'h', 'Backspace'].includes(event.key)) decrease('round')
-    else if (['ArrowRight', 'l', ' '].includes(event.key)) increase('round')
-    else if (['r'].includes(event.key)) reload(true)
+    if (['r'].includes(event.key)) reload(true)
     else if (['ArrowUp', 'k'].includes(event.key)) increase('charge')
     else if (['ArrowDown', 'j'].includes(event.key)) decrease('charge')
     else if (['+', 'M'].includes(event.key)) increase('m')
@@ -225,12 +123,10 @@ function shortcuts (event) {
 
 function drawNavElements (state) {
   document.getElementById('nav').style.display = (state.navbar) ? 'flex' : 'none'
-  document.getElementById('crtrees').style.display = (state.crtrees) ? 'grid' : 'none'
 
   document.getElementById('n').innerText = state.n
   document.getElementById('m').innerText = state.m
   document.getElementById('charge').innerText = state.charge
-  document.getElementById('displayRound').innerText = state.round
 }
 
 /** The main function is called when the page has loaded */
@@ -248,8 +144,6 @@ function main () {
 
   document.getElementById('up').addEventListener('click', () => increase('charge'))
   document.getElementById('down').addEventListener('click', () => decrease('charge'))
-  document.getElementById('right').addEventListener('click', () => increase('round'))
-  document.getElementById('left').addEventListener('click', () => decrease('round'))
   document.getElementById('reload').addEventListener('click', () => reload(true))
   document.getElementById('count').addEventListener('click', () => toggle('count'))
   document.addEventListener('keydown', shortcuts)
