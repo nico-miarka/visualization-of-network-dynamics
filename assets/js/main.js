@@ -1,7 +1,6 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from './state.js'
-import { randomGraph } from './graph.js'
-
+import { randomGraph, get_vertex_color } from './graph.js'
 let simulation
 let treesPerRound
 let hoveringNode
@@ -38,7 +37,7 @@ async function reload (forceResample = false) {
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
-    const graph = randomGraph(state.n, state.m, state.seed)
+    const graph = randomGraph(state.n, state.m, state.seed, state.option)
 
     simulation
       .nodes(graph.vertices)
@@ -70,7 +69,6 @@ async function reload (forceResample = false) {
     recenter()
     d3.select('main').classed('loading', false)
     updateState(state, true)
-    changedFields.add('round')
   } else {
     if (changedFields.has('charge')) {
       simulation.force('charge', d3.forceManyBody().strength(state.charge))
@@ -81,8 +79,7 @@ async function reload (forceResample = false) {
     drawNavElements(state)
   }
   /**color */
-  d3.selectAll('circle.graphNode').attr('fill', NODECOLOR
-  )
+  d3.selectAll('circle.graphNode').attr('fill', get_vertex_color)
 }
 
 function addto (field, stepsize, min, max) {
@@ -95,7 +92,6 @@ function addto (field, stepsize, min, max) {
 }
 
 const STEPSIZE = {
-  round: 1,
   n: 5,
   m: 5,
   charge: -50
@@ -117,7 +113,6 @@ function shortcuts (event) {
     else if (['-', 'm'].includes(event.key)) decrease('m')
     else if (['N'].includes(event.key)) increase('n')
     else if (['n'].includes(event.key)) decrease('n')
-    else if (['c'].includes(event.key)) toggle('count')
   }
 }
 
@@ -145,7 +140,6 @@ function main () {
   document.getElementById('up').addEventListener('click', () => increase('charge'))
   document.getElementById('down').addEventListener('click', () => decrease('charge'))
   document.getElementById('reload').addEventListener('click', () => reload(true))
-  document.getElementById('count').addEventListener('click', () => toggle('count'))
   document.addEventListener('keydown', shortcuts)
   document.getElementById('main').addEventListener('wheel', event => (event.deltaY < 0) ? increase('charge') : decrease('charge'))
   window.addEventListener('hashchange', () => reload())

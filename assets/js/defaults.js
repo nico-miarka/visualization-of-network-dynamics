@@ -6,8 +6,7 @@ const state = {
   m: 35,
   charge: () => (document.getElementById('main').offsetWidth < 700) ? -100 : -200,
   navbar: true,
-  crtrees: true,
-  round: 0,
+  option: 'rumor',
   seed: () => (Math.seedrandom) ? '' : undefined,
   count: false
 }
