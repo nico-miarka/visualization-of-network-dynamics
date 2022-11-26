@@ -1,31 +1,12 @@
-/** return graph with vertices for different protocols
+/** return default graph with n vertices
  * @param {Number} n vertices
- * @param {String} option protocol 
  * @return {Graph}
  */
- function create_vertices(n , option) {
-  switch (option){
-    case 'rumor':
-      return create_rumor_vertices(n)
-  }
-}
-export function get_vertex_color(vertex){
-  switch(vertex.label){
-    case 'susceptible':
-      return 'gray'
-    case 'infected':
-      return 'red'
-    case 'recovered':
-      return 'green'
-  }
-}
-function create_rumor_vertices(n){
+ function create_graph(n) {
   const graph = { vertices: [], edges: [] }
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], label:'susceptible'}
+    graph.vertices[i] = { name: i, neighbors: [], level:0}
   }
-  const start_vertex = graph.vertices[Math.floor(Math.random() * graph.vertices.length)]
-  start_vertex.label = 'infected'
   return graph
 }
 
@@ -38,7 +19,7 @@ export function randomGraph (n, m, seed, option) {
   const maxNumEdges = n * (n - 1) / 2
   if (n < 0 || m < 0 || m > maxNumEdges) return undefined
 
-  const graph = create_vertices(n, option)
+  const graph = create_graph(n)
 
   const random = (Math.seedrandom) ? (new Math.seedrandom(seed)) : Math.random // eslint-disable-line
   const randomInt = (min, max) => Math.floor(random() * (max - min) + min)

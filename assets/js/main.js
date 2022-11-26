@@ -1,6 +1,6 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from './state.js'
-import { randomGraph, get_vertex_color } from './graph.js'
+import { randomGraph} from './graph.js'
 let simulation
 let treesPerRound
 let hoveringNode
@@ -19,10 +19,8 @@ function recenter () {
 }
 
 /** Sample and draw new graph
-  * Also draws CR trees, sets up mouseover events, and starts the simulation
   */
 async function reload (forceResample = false) {
-  const NODECOLOR = '#89CFF0'
   const svg = d3.select('main > svg')
   const state = getState()
   const changedFields = getStateChanges(state)
@@ -79,7 +77,7 @@ async function reload (forceResample = false) {
     drawNavElements(state)
   }
   /**color */
-  d3.selectAll('circle.graphNode').attr('fill', get_vertex_color)
+  d3.selectAll('circle.graphNode').attr('fill', 'gray')
 }
 
 function addto (field, stepsize, min, max) {
