@@ -8,7 +8,8 @@ export const state = {
   navbar: true,
   graph: 'rumor',
   seed: () => (Math.seedrandom) ? '' : undefined,
-  count: false
+  count: false,
+  charge: -50
 }
 
 export const get = (k) => (typeof state[k] === 'function') ? state[k]() : state[k]

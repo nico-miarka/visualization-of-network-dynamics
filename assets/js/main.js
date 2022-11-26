@@ -35,7 +35,7 @@ async function reload (forceResample = false) {
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
-    const graph = randomGraph(state.n, state.m, state.seed, state.option)
+    const graph = randomGraph(state.n, state.m, state.seed)
 
     simulation
       .nodes(graph.vertices)

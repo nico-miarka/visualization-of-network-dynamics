@@ -15,7 +15,7 @@
   * @param {Number} m edges
   * @return {Graph}
   */
-export function randomGraph (n, m, seed, option) {
+export function randomGraph (n, m, seed) {
   const maxNumEdges = n * (n - 1) / 2
   if (n < 0 || m < 0 || m > maxNumEdges) return undefined
 
