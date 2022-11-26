@@ -12,5 +12,3 @@ export const state = {
   charge: -50
 }
 
-export const get = (k) => (typeof state[k] === 'function') ? state[k]() : state[k]
-export const keys = () => Object.keys(state)
