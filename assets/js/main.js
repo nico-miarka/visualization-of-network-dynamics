@@ -61,7 +61,6 @@ updateState(state)
   */
  async function reload (forceResample = false) {
   const state = getState()
-  const graph = randomGraph(state.n, state.m, state.seed)
   const changedFields = getStateChanges(state)
   if (forceResample || changedFields === undefined || changedFields.has('n') || changedFields.has('m') || changedFields.has('seed')) {
 
@@ -69,6 +68,7 @@ updateState(state)
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
+    const graph = randomGraph(state.n, state.m, state.seed)
     drawGraph(state,graph)
 
   } else {
