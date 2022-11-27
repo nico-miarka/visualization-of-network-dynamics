@@ -17,56 +17,60 @@ function recenter () {
     .force('yAxis', d3.forceY(h / 2).strength(0.1))
     .alpha(1).restart()
 }
+function drawGraph(state,graph){
+  const svg = d3.select('main > svg')
+  const w = document.getElementById('main').offsetWidth
+  const h = document.getElementById('main').offsetHeight
+  svg.selectAll('*').remove()
+  d3.select('main').classed('loading', true)
+  simulation
+  .nodes(graph.vertices)
+  .force('charge', d3.forceManyBody().strength(state.charge))
+  .force('link', d3.forceLink(graph.edges).distance(50).strength(0.9))
 
+svg.selectAll('line.graphEdge')
+  .data(graph.edges).enter().append('line')
+  .attr('class', 'graphEdge')
+
+svg.selectAll('circle.graphNode')
+  .data(graph.vertices).enter().append('circle')
+  .attr('class', 'graphNode')
+  .attr('r', 10).attr('cx', w / 2).attr('cy', h / 2)
+  .call(d3.drag()
+    .on('start', (event, v) => {
+      draggingNode = v
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      [v.fx, v.fy] = [v.x, v.y]
+    })
+    .on('drag', (event, v) => {
+      [v.fx, v.fy] = [event.x, event.y]
+    })
+    .on('end', (event, v) => {
+      draggingNode = undefined
+      if (!event.active) simulation.alphaTarget(0);
+      [v.fx, v.fy] = [null, null]
+    }))
+recenter()
+
+d3.select('main').classed('loading', false)
+updateState(state)
+  /**color */
+  d3.selectAll('circle.graphNode').attr('fill', '#95ECED')
+}
 /** Sample and draw new graph
   */
-async function reload (forceResample = false) {
-  const svg = d3.select('main > svg')
+ async function reload (forceResample = false) {
   const state = getState()
+  const graph = randomGraph(state.n, state.m, state.seed)
   const changedFields = getStateChanges(state)
   if (forceResample || changedFields === undefined || changedFields.has('n') || changedFields.has('m') || changedFields.has('seed')) {
-    hoveringNode = undefined
-    draggingNode = undefined
-    svg.selectAll('*').remove()
-    d3.select('main').classed('loading', true)
-    const w = document.getElementById('main').offsetWidth
-    const h = document.getElementById('main').offsetHeight
+
 
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
-    const graph = randomGraph(state.n, state.m, state.seed)
+    drawGraph(state,graph)
 
-    simulation
-      .nodes(graph.vertices)
-      .force('charge', d3.forceManyBody().strength(state.charge))
-      .force('link', d3.forceLink(graph.edges).distance(50).strength(0.9))
-
-    svg.selectAll('line.graphEdge')
-      .data(graph.edges).enter().append('line')
-      .attr('class', 'graphEdge')
-
-    svg.selectAll('circle.graphNode')
-      .data(graph.vertices).enter().append('circle')
-      .attr('class', 'graphNode')
-      .attr('r', 10).attr('cx', w / 2).attr('cy', h / 2)
-      .call(d3.drag()
-        .on('start', (event, v) => {
-          draggingNode = v
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          [v.fx, v.fy] = [v.x, v.y]
-        })
-        .on('drag', (event, v) => {
-          [v.fx, v.fy] = [event.x, event.y]
-        })
-        .on('end', (event, v) => {
-          draggingNode = undefined
-          if (!event.active) simulation.alphaTarget(0);
-          [v.fx, v.fy] = [null, null]
-        }))
-    recenter()
-    d3.select('main').classed('loading', false)
-    updateState(state, true)
   } else {
     if (changedFields.has('charge')) {
       simulation.force('charge', d3.forceManyBody().strength(state.charge))
@@ -76,8 +80,7 @@ async function reload (forceResample = false) {
   if (changedFields !== undefined && changedFields.size !== 0) {
     drawNavElements(state)
   }
-  /**color */
-  d3.selectAll('circle.graphNode').attr('fill', 'gray')
+
 }
 
 function addto (field, stepsize, min, max) {
@@ -94,7 +97,6 @@ const STEPSIZE = {
   m: 5,
   charge: -50
 }
-
 const getMin = field => (field === 'charge') ? -Infinity : 0
 const getMax = field => (field === 'round') ? treesPerRound.length - 1
   : (field === 'charge') ? 0 : Infinity

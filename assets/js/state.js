@@ -21,7 +21,4 @@ export const getStateChanges = (state = getState()) => {
   }
   return fs
 }
-async function onStateChange () {
-  const state = getState()
-}
 export const updateState = (update) => hash.update(update)
