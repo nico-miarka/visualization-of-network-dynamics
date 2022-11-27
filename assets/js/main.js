@@ -64,7 +64,6 @@ updateState(state)
   const changedFields = getStateChanges(state)
   if (forceResample || changedFields === undefined || changedFields.has('n') || changedFields.has('m') || changedFields.has('seed')) {
 
-
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
     }
@@ -102,7 +101,6 @@ const getMax = field => (field === 'round') ? treesPerRound.length - 1
   : (field === 'charge') ? 0 : Infinity
 const increase = field => addto(field, STEPSIZE[field], getMin(field), getMax(field))
 const decrease = field => addto(field, -STEPSIZE[field], getMin(field), getMax(field))
-const toggle = field => { const state = getState(); state[field] = !state[field]; updateState(state) }
 
 function shortcuts (event) {
   if (!event.ctrlKey && !event.altKey) {
@@ -118,10 +116,10 @@ function shortcuts (event) {
 
 function drawNavElements (state) {
   document.getElementById('nav').style.display = (state.navbar) ? 'flex' : 'none'
-
   document.getElementById('n').innerText = state.n
   document.getElementById('m').innerText = state.m
   document.getElementById('charge').innerText = state.charge
+  document.addEventListener('keydown', shortcuts)
 }
 
 /** The main function is called when the page has loaded */
@@ -140,7 +138,6 @@ function main () {
   document.getElementById('up').addEventListener('click', () => increase('charge'))
   document.getElementById('down').addEventListener('click', () => decrease('charge'))
   document.getElementById('reload').addEventListener('click', () => reload(true))
-  document.addEventListener('keydown', shortcuts)
   document.getElementById('main').addEventListener('wheel', event => (event.deltaY < 0) ? increase('charge') : decrease('charge'))
   window.addEventListener('hashchange', () => reload())
   window.onresize = recenter
