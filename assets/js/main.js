@@ -2,6 +2,8 @@
 import { getState, updateState, getStateChanges } from './state.js'
 import { randomGraph} from './graph.js'
 let simulation
+let draggingNode
+let hoveringNode
 
 /** Recenter the simulation (e.g. after window resize event) */
 function recenter () {

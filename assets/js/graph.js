@@ -31,7 +31,6 @@ export function randomGraph (n, m, seed) {
     if (!(j in state)) state[j] = j;
     [state[i], state[j]] = [state[j], state[i]]
   }
-  console.log(state)
 
   /** Cantor's unpairing function
     * @param {Number} k non-negative integer
