@@ -20,7 +20,6 @@ export function randomGraph (n, m, seed) {
   if (n < 0 || m < 0 || m > maxNumEdges) return undefined
 
   const graph = create_graph(n)
-
   const random = (Math.seedrandom) ? (new Math.seedrandom(seed)) : Math.random // eslint-disable-line
   const randomInt = (min, max) => Math.floor(random() * (max - min) + min)
 
@@ -32,6 +31,7 @@ export function randomGraph (n, m, seed) {
     if (!(j in state)) state[j] = j;
     [state[i], state[j]] = [state[j], state[i]]
   }
+  console.log(state)
 
   /** Cantor's unpairing function
     * @param {Number} k non-negative integer

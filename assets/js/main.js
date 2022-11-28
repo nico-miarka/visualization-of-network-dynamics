@@ -2,10 +2,6 @@
 import { getState, updateState, getStateChanges } from './state.js'
 import { randomGraph} from './graph.js'
 let simulation
-let treesPerRound
-let hoveringNode
-let draggingNode
-
 
 /** Recenter the simulation (e.g. after window resize event) */
 function recenter () {
@@ -57,6 +53,8 @@ updateState(state)
   /**color */
   d3.selectAll('circle.graphNode').attr('fill', '#95ECED')
 }
+
+
 /** Sample and draw new graph
   */
  async function reload (forceResample = false) {
@@ -97,8 +95,7 @@ const STEPSIZE = {
   charge: -50
 }
 const getMin = field => (field === 'charge') ? -Infinity : 0
-const getMax = field => (field === 'round') ? treesPerRound.length - 1
-  : (field === 'charge') ? 0 : Infinity
+const getMax = field => (field === 'charge') ? 0 : Infinity
 const increase = field => addto(field, STEPSIZE[field], getMin(field), getMax(field))
 const decrease = field => addto(field, -STEPSIZE[field], getMin(field), getMax(field))
 
