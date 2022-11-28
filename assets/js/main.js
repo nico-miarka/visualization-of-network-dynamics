@@ -96,6 +96,7 @@ const STEPSIZE = {
   m: 5,
   charge: -50
 }
+
 const getMin = field => (field === 'charge') ? -Infinity : 0
 const getMax = field => (field === 'charge') ? 0 : Infinity
 const increase = field => addto(field, STEPSIZE[field], getMin(field), getMax(field))
