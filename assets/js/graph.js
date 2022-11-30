@@ -9,6 +9,28 @@ function create_graph(n) {
   }
   return graph;
 }
+function addEdge(graph,edge){
+  if (!graph.edges.includes(edge)){
+    graph.edges.push(edge)
+  }
+}
+function makeRandomEdge(graph,random){
+  var u = graph.vertices[Math.floor(random() * graph.vertices.length)];
+  var v = graph.vertices[Math.floor(random() * graph.vertices.length)];
+  while (u === v){
+    u = graph.vertices[Math.floor(random() * graph.vertices.length)];
+    v = graph.vertices[Math.floor(random() * graph.vertices.length)];
+  }
+  return {source:u, target:v}
+}
+
+function addRandomEdges(graph,m,random){
+  while (graph.edges.length < m){
+    const edge = makeRandomEdge(graph,random);
+    addEdge(graph,edge);
+  }
+}
+
 function randomWalk(n,m,random){
   const graph = create_graph(n)
   const S = new Set(graph.vertices);
@@ -29,6 +51,7 @@ function randomWalk(n,m,random){
     }
     currentVertex = nextVertex;
   }
+  addRandomEdges(graph,m,random)
   return graph
   
 }
@@ -43,15 +66,6 @@ export function randomGraph(n, m, seed) {
   return graph;
 }
 
-function crtrees(n, m, random) {
-  const maxNumEdges = (n * (n - 1)) / 2;
-  if (n < 0 || m < 0 || m > maxNumEdges) return undefined;
-  const graph = create_graph(n);
-  const randomInt = (min, max) => Math.floor(random() * (max - min) + min);
-  /** Generate a list of random integers using sparse Fisher-Yates shuffling */
-
-  return graph
-}
 
 function crtrees(n,m,random){
   const maxNumEdges = n * (n - 1) / 2
