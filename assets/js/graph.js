@@ -2,11 +2,54 @@
  * @param {Number} n vertices
  * @return {Graph}
  */
- function create_graph(n) {
-  const graph = { vertices: [], edges: [] }
+function create_graph(n) {
+  const graph = { vertices: [], edges: [] };
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], level:0}
+    graph.vertices[i] = { name: i, neighbors: [], level: 0 };
   }
+  return graph;
+}
+function randomWalk(n,m,random){
+  const graph = create_graph(n)
+  const S = new Set(graph.vertices);
+  const visited = new Set();
+  var currentVertex =
+    graph.vertices[Math.floor(random() * graph.vertices.length)];
+  S.delete(currentVertex);
+  visited.add(currentVertex);
+  while (S.size !== 0) {
+    var nextVertex =
+      graph.vertices[Math.floor(random() * graph.vertices.length)];
+    if (!visited.has(nextVertex)) {
+      graph.edges.push({ source: currentVertex, target: nextVertex });
+      currentVertex.neighbors.push(nextVertex);
+      nextVertex.neighbors.push(currentVertex);
+      S.delete(nextVertex);
+      visited.add(nextVertex);
+    }
+    currentVertex = nextVertex;
+  }
+  return graph
+  
+}
+/** Sample a random graph G(n,m)
+ * @param {Number} n vertices
+ * @param {Number} m edges
+ * @return {Graph}
+ */
+export function randomGraph(n, m, seed) {
+  const random = Math.seedrandom ? new Math.seedrandom(seed) : Math.random; // eslint-disable-line
+  const graph = randomWalk(n, m, random);
+  return graph;
+}
+
+function crtrees(n, m, random) {
+  const maxNumEdges = (n * (n - 1)) / 2;
+  if (n < 0 || m < 0 || m > maxNumEdges) return undefined;
+  const graph = create_graph(n);
+  const randomInt = (min, max) => Math.floor(random() * (max - min) + min);
+  /** Generate a list of random integers using sparse Fisher-Yates shuffling */
+
   return graph
 }
 
@@ -41,61 +84,5 @@ function crtrees(n,m,random){
     u.neighbors.push(v)
     v.neighbors.push(u)
   }
-  return graph
-}
-
-function addEdge(graph,edge){
-  if (!graph.edges.includes(edge)){
-    graph.edges.push(edge)
-  }
-}
-
-function makeRandomEdge(graph,random){
-  const u = graph.vertices[Math.floor(random()* graph.vertices.length)]
-  const v = graph.vertices[Math.floor(random()* graph.vertices.length)]
-  return {source:u,target:v}
-}
-
-function addRandomEdges(graph,m,random){
-  while (graph.edges.length < m){
-    const edge = makeRandomEdge(graph,random);
-    addEdge(graph,edge)
-  }
-}
-
-function randomWalk(n,m,random){
-  const graph = create_graph(n)
-  const S = new Set(graph.vertices);
-  const visited = new Set();
-  var currentVertex = graph.vertices[Math.floor(random()* graph.vertices.length)]
-  S.delete(currentVertex)
-  visited.add(currentVertex)
-  while (S.size !== 0) {
-    var nextVertex = graph.vertices[Math.floor(random()* graph.vertices.length)]
-    if (!visited.has(nextVertex)){
-      graph.edges.push({ source: currentVertex, target: nextVertex })
-      currentVertex.neighbors.push(nextVertex)
-      nextVertex.neighbors.push(currentVertex)
-      S.delete(nextVertex)
-      visited.add(nextVertex)
-    }
-    currentVertex = nextVertex
-  }
-  /**TODO add random edges until edges == m */
-  addRandomEdges(graph,m,random)
-  return graph
-  
-}
-/** Sample a random graph G(n,m)
-  * @param {Number} n vertices
-  * @param {Number} m edges
-  * @return {Graph}
-  */
-export function randomGraph (n, m, seed) {
-  
-  const random = (Math.seedrandom) ? (new Math.seedrandom(seed)) : Math.random // eslint-disable-line
-  const graph = randomWalk(n,m,random);
-  /** Generate a list of random integers using sparse Fisher-Yates shuffling */
-
   return graph
 }
