@@ -8,7 +8,9 @@ export const state = {
   navbar: true,
   graph: 'rumor',
   seed: () => (Math.seedrandom) ? '' : undefined,
+  protocolSeed: () => (Math.seedrandom) ? '' : undefined,
   count: false,
-  charge: -50
+  charge: -50,
+  color: ['red','blue','green','yellow','purple','orange','gray']
 }
 

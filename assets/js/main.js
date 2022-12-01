@@ -1,6 +1,8 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from './state.js'
 import { randomGraph} from './graph.js'
+import {changeVertex} from './opinion.js'
+import {getVertexColor} from './visuals.js'
 let simulation
 let draggingNode
 let hoveringNode
@@ -53,7 +55,7 @@ recenter()
 d3.select('main').classed('loading', false)
 updateState(state)
   /**color */
-  d3.selectAll('circle.graphNode').attr('fill', '#95ECED')
+  d3.selectAll('circle.graphNode').attr('fill', vertex => {return getVertexColor(vertex)} )
 }
 
 
@@ -66,9 +68,12 @@ updateState(state)
 
     if (Math.seedrandom && (state.seed === '' || forceResample)) {
       state.seed = Math.random().toString(36).substr(2, 5)
+      /** TODO  seperate protocolSeed reload*/
+      state.protocolSeed = Math.random().toString(36).substr(2, 5)
     }
     const graph = randomGraph(state.n, state.m, state.seed)
     drawGraph(state,graph)
+    changeVertex(graph,state.protocolSeed)
 
   } else {
     if (changedFields.has('charge')) {
@@ -99,6 +104,8 @@ const STEPSIZE = {
 
 const getMin = field => (field === 'charge') ? -Infinity : 0
 const getMax = field => (field === 'charge') ? 0 : Infinity
+/** TODO add maxnumedges as ceiling for m */
+/** TODO add 2 as floor for n */
 const increase = field => addto(field, STEPSIZE[field], getMin(field), getMax(field))
 const decrease = field => addto(field, -STEPSIZE[field], getMin(field), getMax(field))
 

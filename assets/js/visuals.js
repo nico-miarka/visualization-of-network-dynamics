@@ -1,3 +1,5 @@
+import { state } from "./defaults.js"
+
 /** Highlight nodes, links, and tree on a mouseover event
   * @param {Number} i is the color to be highlighted
   * @param {Number} round is the round that the color i refers to
@@ -75,3 +77,8 @@ export function radius (v) {
     if (fraction <= 1) return d3.color(d3.interpolateWarm(fraction)).darker(0.2)
     else return d3.color(d3.interpolateCool(2 - fraction)).darker(0.2)
   }
+
+
+export function getVertexColor(vertex){
+  return state.color[vertex.level]
+}

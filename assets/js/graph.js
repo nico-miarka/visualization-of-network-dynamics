@@ -2,10 +2,10 @@
  * @param {Number} n vertices
  * @return {Graph}
  */
-function create_graph(n) {
+function create_graph(n,random) {
   const graph = { vertices: [], edges: [] };
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], level: 0 };
+    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() * 1 + 0.5)};
   }
   return graph;
 }
@@ -32,7 +32,7 @@ function addRandomEdges(graph,m,random){
 }
 
 function randomWalk(n,m,random){
-  const graph = create_graph(n)
+  const graph = create_graph(n,random)
   const S = new Set(graph.vertices);
   const visited = new Set();
   var currentVertex =
