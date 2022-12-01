@@ -1,3 +1,4 @@
+/** Generalize for h-neighbors (h-Majority) */
 function pickVertex(graph,random){
     return graph.vertices[Math.floor(random() * graph.vertices.length)]
 }
