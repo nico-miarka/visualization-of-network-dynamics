@@ -5,28 +5,29 @@
 function create_graph(n,random) {
   const graph = { vertices: [], edges: [] };
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() * 1 + 0.5)};
+    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() *1  + 0.5)};
   }
   return graph;
 }
 function addEdge(graph,edge){
-  if (!graph.edges.includes(edge)){
+
     graph.edges.push(edge)
-  }
+    edge.target.neighbors.push(edge.source)
+    edge.source.neighbors.push(edge.target)
 }
 function makeRandomEdge(graph,random){
   var u = graph.vertices[Math.floor(random() * graph.vertices.length)];
   var v = graph.vertices[Math.floor(random() * graph.vertices.length)];
-  while (u === v){
+  while (u === v || graph.edges.some(i => ((i.target === v  && i.source === u)|| (i.target === u && i.source === v)))){
     u = graph.vertices[Math.floor(random() * graph.vertices.length)];
     v = graph.vertices[Math.floor(random() * graph.vertices.length)];
   }
   return {source:u, target:v}
 }
 
-function addRandomEdges(graph,m,random){
-  while (graph.edges.length < m){
-    const edge = makeRandomEdge(graph,random);
+function addRandomEdges(graph,m,maxNumEdges,random){
+  while (graph.edges.length < m && graph.edges.length !== maxNumEdges){
+    var edge = makeRandomEdge(graph,random);
     addEdge(graph,edge);
   }
 }
@@ -51,7 +52,8 @@ function randomWalk(n,m,random){
     }
     currentVertex = nextVertex;
   }
-  addRandomEdges(graph,m,random)
+  const maxNumEdges = n * (n - 1) / 2
+  addRandomEdges(graph,m,maxNumEdges,random)
   return graph
   
 }
@@ -67,8 +69,7 @@ export function randomGraph(n, m, seed) {
 }
 
 
-function crtrees(n,m,random){
-  const maxNumEdges = n * (n - 1) / 2
+function crtrees(n,m,random,maxNumEdges){
   if (n < 0 || m < 0 || m > maxNumEdges) return undefined
   const graph = create_graph(n)
   const randomInt = (min, max) => Math.floor(random() * (max - min) + min)
