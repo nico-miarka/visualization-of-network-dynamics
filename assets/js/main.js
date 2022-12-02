@@ -73,7 +73,7 @@ updateState(state)
     }
     const graph = randomGraph(state.n, state.m, state.seed)
     drawGraph(state,graph)
-    changeVertex(graph,state.protocolSeed)
+    changeVertex(graph,state.protocolSeed,state.majority)
 
   } else {
     if (changedFields.has('charge')) {
