@@ -11,6 +11,7 @@ export const state = {
   protocolSeed: () => (Math.seedrandom) ? '' : undefined,
   count: false,
   charge: -50,
-  color: ['red','blue','green','yellow','purple','orange','gray']
+  color: ['tomato','lightblue','lightgreen','yellow','purple','orange','gray'],
+  majority:2
 }
 
