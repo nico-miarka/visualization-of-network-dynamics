@@ -72,8 +72,11 @@ updateState(state)
       state.protocolSeed = Math.random().toString(36).substr(2, 5)
     }
     const graph = randomGraph(state.n, state.m, state.seed)
+    const random = Math.seedrandom ? new Math.seedrandom(state.protocolSeed) : Math.random; // eslint-disable-line
     drawGraph(state,graph)
-    changeVertex(graph,state.protocolSeed,state.majority)
+    await changeVertex(graph,random,state.majority)
+    await changeVertex(graph,random,state.majority)
+    changeVertex(graph,random,state.majority)
 
   } else {
     if (changedFields.has('charge')) {

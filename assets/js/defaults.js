@@ -12,6 +12,6 @@ export const state = {
   count: false,
   charge: -50,
   color: ['tomato','lightblue','lightgreen','yellow','purple','orange','gray'],
-  majority:2
+  majority:3
 }
 

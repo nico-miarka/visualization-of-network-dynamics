@@ -5,7 +5,7 @@
 function create_graph(n,random) {
   const graph = { vertices: [], edges: [] };
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() *1  + 0.5)};
+    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() *2  + 0.5)};
   }
   return graph;
 }
