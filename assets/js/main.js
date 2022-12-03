@@ -74,6 +74,7 @@ updateState(state)
     const graph = randomGraph(state.n, state.m, state.seed)
     const random = Math.seedrandom ? new Math.seedrandom(state.protocolSeed) : Math.random; // eslint-disable-line
     drawGraph(state,graph)
+    /** TODO add button to do one iteration */
     await changeVertex(graph,random,state.majority)
     await changeVertex(graph,random,state.majority)
     changeVertex(graph,random,state.majority)

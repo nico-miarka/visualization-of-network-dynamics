@@ -101,3 +101,24 @@ function crtrees(n,m,random,maxNumEdges){
   }
   return graph
 }
+/** TODO implement real logic : navbar => draw one button for each graphs element | forward start/stop etc handled by function in each element.
+
+const graphs = {
+  opinion:{
+      functions:[
+        toggleasync,
+        onestepforward,
+        pauseStop,
+        etc
+      ],
+      icon:'example',
+      tooltip:'example'
+  },
+  glauber:{
+
+  },
+  rumor:{
+
+  }
+  
+}*/ 
