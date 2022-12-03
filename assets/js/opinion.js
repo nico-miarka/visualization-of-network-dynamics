@@ -58,8 +58,6 @@ export async function changeVertex (graph,random,h){
     highlightVertices(neighbors)
     await sleep(2000)
     changeOpinion(vertex,neighbors,h)
-    console.log(vertex)
-    console.log(neighbors)
     drawVertexColor(vertex)
     await sleep(2000)
     resetHighlightGraph()
