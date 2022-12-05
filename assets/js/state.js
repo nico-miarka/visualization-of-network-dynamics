@@ -5,7 +5,6 @@ import * as hash from './lib/hash.js'
 
 export const getState = () => {
   const state = hash.get(defaults.state)
-  console.debug(state)
   return state
 }
 

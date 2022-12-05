@@ -12,6 +12,11 @@ export const state = {
   count: false,
   charge: -50,
   color: ['tomato','lightblue','lightgreen','yellow','purple','orange','gray'],
-  majority:3
+  majority:1,
+  topics:{
+    rumor:false,
+    glauber:false,
+    opinion:false
+  }
 }
 

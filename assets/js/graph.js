@@ -1,3 +1,5 @@
+import { getState, updateState } from "./state.js";
+
 /** return default graph with n vertices
  * @param {Number} n vertices
  * @return {Graph}
@@ -101,24 +103,106 @@ function crtrees(n,m,random,maxNumEdges){
   }
   return graph
 }
-/** TODO implement real logic : navbar => draw one button for each graphs element | forward start/stop etc handled by function in each element.
+/** TODO implement state toggle for topics
+*/ 
 
-const graphs = {
+function toggleProtocol(key){
+  return () => {
+  const state = getState()
+  const button = document.getElementById(key).classList
+  if (state.topics[key]){
+    button.remove('show')
+  } else{
+    button.add('show')
+  }
+  updateState({topics: { [key]: !state.topics[key]}})
+}
+}
+const toggleOpinion = toggleProtocol('opinion')
+const toggleGlauber = toggleProtocol('glauber')
+const toggleRumor = toggleProtocol('rumor')
+
+/** TODO add switchProtocol function to onclick switch protocol + draw new graph */
+
+
+export const topics = {
   opinion:{
-      functions:[
-        toggleasync,
-        onestepforward,
-        pauseStop,
-        etc
+      protocols:[
+        'voter',
+        'majority',
       ],
-      icon:'example',
-      tooltip:'example'
+      name:'example',
+      onClick: toggleOpinion,
   },
   glauber:{
-
+    protocols:[
+      'glauberModel',
+      'filler'
+    ],
+    name:'example2',
+    onClick: toggleGlauber,
   },
   rumor:{
-
+    protocols:[
+      'regular',
+      'SIRmodel',
+      'more'
+    ],
+    name:'example3',
+    onClick: toggleRumor,
   }
   
-}*/ 
+}
+export const protocols = {
+  voter:{
+    icon:'voter icon',
+    tooltip: 'voter tooltip',
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    }
+  },
+  majority:{
+    icon: 'majority icon',
+    tooltip: 'majority tooltip',
+    functions:{
+
+    }
+  },
+  glauber:{
+    icon: 'glauber icon',
+    tooltip: 'glauber tooltip',
+    functions:{
+
+    }
+  },
+  filler:{
+    icon: 'filler icon',
+    tooltip: 'filler tooltip',
+    functions:{
+
+    }
+  },
+  regular:{
+    icon: 'regular icon',
+    tooltip: 'regular tooltip',
+    functions:{
+
+    }
+  },
+  SIRmodel:{
+    icon: 'SIRmodel icon',
+    tooltip: 'SIRmodel tooltip',
+    functions:{
+
+    }
+  },
+  more:{
+    icon: 'more icon',
+    tooltip: 'more tooltip',
+    functions:{
+
+    }
+  },
+}

@@ -28,7 +28,7 @@ Object.getOwnPropertyNames(opinions).forEach(k => {
 
 function changeOpinion (vertex, neighbors,h){
     if (h === 1){
-        vertex.level === neighbors[0].level
+        vertex.level = neighbors[0].level
         return
     }
     /** own vertex opinion matters in h-majority therefore we include it in opinions */
@@ -48,7 +48,6 @@ function changeOpinion (vertex, neighbors,h){
 }
 
 export async function changeVertex (graph,random,h){
-    console.log(h)
     const vertex = pickVertex(graph, random)
     await sleep(2000)
     grayOutGraph()

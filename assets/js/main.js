@@ -3,6 +3,7 @@ import { getState, updateState, getStateChanges } from './state.js'
 import { randomGraph} from './graph.js'
 import {changeVertex} from './opinion.js'
 import {getVertexColor} from './visuals.js'
+import {drawNav} from './draw.js'
 let simulation
 let draggingNode
 let hoveringNode
@@ -74,20 +75,17 @@ updateState(state)
     const graph = randomGraph(state.n, state.m, state.seed)
     const random = Math.seedrandom ? new Math.seedrandom(state.protocolSeed) : Math.random; // eslint-disable-line
     drawGraph(state,graph)
+    drawNav(state)
     /** TODO add button to do one iteration */
-    await changeVertex(graph,random,state.majority)
-    await changeVertex(graph,random,state.majority)
-    changeVertex(graph,random,state.majority)
-
   } else {
     if (changedFields.has('charge')) {
       simulation.force('charge', d3.forceManyBody().strength(state.charge))
         .alpha(0.5).restart()
     }
   }
-  if (changedFields !== undefined && changedFields.size !== 0) {
+  /**if (changedFields !== undefined && changedFields.size !== 0) {
     drawNavElements(state)
-  }
+  } */
 
 }
 
@@ -130,7 +128,6 @@ function drawNavElements (state) {
   document.getElementById('n').innerText = state.n
   document.getElementById('m').innerText = state.m
   document.getElementById('charge').innerText = state.charge
-  document.addEventListener('keydown', shortcuts)
 }
 
 /** The main function is called when the page has loaded */
@@ -150,6 +147,7 @@ function main () {
   document.getElementById('down').addEventListener('click', () => decrease('charge'))
   document.getElementById('reload').addEventListener('click', () => reload(true))
   document.getElementById('main').addEventListener('wheel', event => (event.deltaY < 0) ? increase('charge') : decrease('charge'))
+  document.addEventListener('keydown', shortcuts)
   window.addEventListener('hashchange', () => reload())
   window.onresize = recenter
   reload()
