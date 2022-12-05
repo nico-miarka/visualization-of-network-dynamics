@@ -6,8 +6,13 @@ import { getState, updateState } from "./state.js";
  */
 function create_graph(n,random) {
   const graph = { vertices: [], edges: [] };
+  const state = getState()
+  var numberOfColors = 2
+  if (state.graph === 'majority' || state.graph == "rumor" ){
+    numberOfColors = state.numberOfColors
+  }
   for (let i = 0; i < n; i++) {
-    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() *2  + 0.5)};
+    graph.vertices[i] = { name: i, neighbors: [], level: Math.floor(random() *(numberOfColors-1)  + 0.5)};
   }
   return graph;
 }
@@ -27,14 +32,14 @@ function makeRandomEdge(graph,random){
   return {source:u, target:v}
 }
 
-function addRandomEdges(graph,m,maxNumEdges,random){
+function addRandomEdges(graph,m,random,maxNumEdges){
   while (graph.edges.length < m && graph.edges.length !== maxNumEdges){
     var edge = makeRandomEdge(graph,random);
     addEdge(graph,edge);
   }
 }
 
-function randomWalk(n,m,random){
+function randomWalk(n,m,random,maxNumEdges){
   const graph = create_graph(n,random)
   const S = new Set(graph.vertices);
   const visited = new Set();
@@ -54,8 +59,7 @@ function randomWalk(n,m,random){
     }
     currentVertex = nextVertex;
   }
-  const maxNumEdges = n * (n - 1) / 2
-  addRandomEdges(graph,m,maxNumEdges,random)
+  addRandomEdges(graph,m,random,maxNumEdges)
   return graph
   
 }
@@ -65,8 +69,9 @@ function randomWalk(n,m,random){
  * @return {Graph}
  */
 export function randomGraph(n, m, seed) {
+  const maxNumEdges = n * (n - 1) / 2
   const random = Math.seedrandom ? new Math.seedrandom(seed) : Math.random; // eslint-disable-line
-  const graph = randomWalk(n, m, random);
+  const graph = randomWalk(n,m,random,maxNumEdges)
   return graph;
 }
 
@@ -108,14 +113,7 @@ function crtrees(n,m,random,maxNumEdges){
 
 function toggleProtocol(key){
   return () => {
-  const state = getState()
-  const button = document.getElementById(key).classList
-  if (state.topics[key]){
-    button.remove('show')
-  } else{
-    button.add('show')
-  }
-  updateState({topics: { [key]: !state.topics[key]}})
+  document.getElementById(key).classList.toggle('show')
 }
 }
 const toggleOpinion = toggleProtocol('opinion')
@@ -123,86 +121,92 @@ const toggleGlauber = toggleProtocol('glauber')
 const toggleRumor = toggleProtocol('rumor')
 
 /** TODO add switchProtocol function to onclick switch protocol + draw new graph */
+function switchProtocol(key){
+  return ()=> {updateState({graph: key})
+  console.log(getState().graph)
+}
+}
 
+const switchToRumor = switchProtocol('rumor')
+const switchToVoter = switchProtocol('voter')
+const switchToMajority = switchProtocol('majority') 
 
 export const topics = {
   opinion:{
-      protocols:[
-        'voter',
-        'majority',
-      ],
+      protocols:{
+        voter:{
+          icon:'voter icon',
+          tooltip: 'voter tooltip',
+          functions:{
+            forward: 'voter forward',
+            backwards: 'voter backwards',
+            startStop : 'voter Startstop'
+          },
+          onClick: switchToVoter
+          
+        },
+        majority:{
+          icon: 'majority icon',
+          tooltip: 'majority tooltip',
+          functions:{
+      
+          },
+          onClick: switchToMajority
+        }
+      },
       name:'example',
       onClick: toggleOpinion,
   },
   glauber:{
-    protocols:[
-      'glauberModel',
-      'filler'
-    ],
+    protocols:{
+      glauber:{
+        icon: 'glauber icon',
+        tooltip: 'glauber tooltip',
+        functions:{
+    
+        },
+        onClick: switchToVoter
+      },
+      filler:{
+        icon: 'filler icon',
+        tooltip: 'filler tooltip',
+        functions:{
+    
+        },
+        onClick: switchToVoter
+      }
+    },
     name:'example2',
     onClick: toggleGlauber,
   },
   rumor:{
-    protocols:[
-      'regular',
-      'SIRmodel',
-      'more'
-    ],
+    protocols:{
+      regular:{
+        icon: 'regular icon',
+        tooltip: 'regular tooltip',
+        functions:{
+    
+        },
+        onClick:switchToRumor
+      },
+      SIRmodel:{
+        icon: 'SIRmodel icon',
+        tooltip: 'SIRmodel tooltip',
+        functions:{
+    
+        },
+        onClick: switchToVoter
+      },
+      more:{
+        icon: 'more icon',
+        tooltip: 'more tooltip',
+        functions:{
+    
+        },
+        onClick: switchToMajority
+      }
+    },
     name:'example3',
     onClick: toggleRumor,
   }
-  
-}
-export const protocols = {
-  voter:{
-    icon:'voter icon',
-    tooltip: 'voter tooltip',
-    functions:{
-      forward: 'voter forward',
-      backwards: 'voter backwards',
-      startStop : 'voter Startstop'
-    }
-  },
-  majority:{
-    icon: 'majority icon',
-    tooltip: 'majority tooltip',
-    functions:{
-
-    }
-  },
-  glauber:{
-    icon: 'glauber icon',
-    tooltip: 'glauber tooltip',
-    functions:{
-
-    }
-  },
-  filler:{
-    icon: 'filler icon',
-    tooltip: 'filler tooltip',
-    functions:{
-
-    }
-  },
-  regular:{
-    icon: 'regular icon',
-    tooltip: 'regular tooltip',
-    functions:{
-
-    }
-  },
-  SIRmodel:{
-    icon: 'SIRmodel icon',
-    tooltip: 'SIRmodel tooltip',
-    functions:{
-
-    }
-  },
-  more:{
-    icon: 'more icon',
-    tooltip: 'more tooltip',
-    functions:{
-
-    }
-  },
 }

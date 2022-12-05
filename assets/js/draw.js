@@ -1,4 +1,4 @@
-import { topics} from "./graph.js";
+import {topics} from "./graph.js";
 
 export function drawNav (state){
     const nav = document.getElementById('nav')
@@ -15,9 +15,10 @@ export function drawNav (state){
         ul.id = item
         nav.appendChild(ul)
         ul.classList.add('dropdown', 'dropdown-animation')
-        for (const protocols of topics[item].protocols){
+        for (const protocol in topics[item].protocols){
             const subButton = document.createElement('li')
-            subButton.classList.add('dropdown-item', protocols)
+            subButton.classList.add('dropdown-item', protocol)
+            subButton.addEventListener('click',topics[item].protocols[protocol].onClick)
             ul.appendChild(subButton)
         }
     }
