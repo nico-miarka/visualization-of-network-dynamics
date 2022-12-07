@@ -1,5 +1,5 @@
 import { getState, updateState } from "./state.js";
-
+import {changeVertex} from './opinion.js'
 /** return default graph with n vertices
  * @param {Number} n vertices
  * @return {Graph}
@@ -16,12 +16,15 @@ function create_graph(n,random) {
   }
   return graph;
 }
+
+
 function addEdge(graph,edge){
 
     graph.edges.push(edge)
     edge.target.neighbors.push(edge.source)
     edge.source.neighbors.push(edge.target)
 }
+
 function makeRandomEdge(graph,random){
   var u = graph.vertices[Math.floor(random() * graph.vertices.length)];
   var v = graph.vertices[Math.floor(random() * graph.vertices.length)];
@@ -41,20 +44,20 @@ function addRandomEdges(graph,m,random,maxNumEdges){
 
 function randomWalk(n,m,random,maxNumEdges){
   const graph = create_graph(n,random)
-  const S = new Set(graph.vertices);
+  const unvisited = new Set(graph.vertices);
   const visited = new Set();
   var currentVertex =
     graph.vertices[Math.floor(random() * graph.vertices.length)];
-  S.delete(currentVertex);
+  unvisited.delete(currentVertex);
   visited.add(currentVertex);
-  while (S.size !== 0) {
+  while (unvisited.size !== 0) {
     var nextVertex =
       graph.vertices[Math.floor(random() * graph.vertices.length)];
     if (!visited.has(nextVertex)) {
       graph.edges.push({ source: currentVertex, target: nextVertex });
       currentVertex.neighbors.push(nextVertex);
       nextVertex.neighbors.push(currentVertex);
-      S.delete(nextVertex);
+      unvisited.delete(nextVertex);
       visited.add(nextVertex);
     }
     currentVertex = nextVertex;
@@ -123,7 +126,6 @@ const toggleRumor = toggleProtocol('rumor')
 /** TODO add switchProtocol function to onclick switch protocol + draw new graph */
 function switchProtocol(key){
   return ()=> {updateState({graph: key})
-  console.log(getState().graph)
 }
 }
 
@@ -133,80 +135,84 @@ const switchToMajority = switchProtocol('majority')
 
 export const topics = {
   opinion:{
-      protocols:{
-        voter:{
-          icon:'voter icon',
-          tooltip: 'voter tooltip',
-          functions:{
-            forward: 'voter forward',
-            backwards: 'voter backwards',
-            startStop : 'voter Startstop'
-          },
-          onClick: switchToVoter
-          
-        },
-        majority:{
-          icon: 'majority icon',
-          tooltip: 'majority tooltip',
-          functions:{
-      
-          },
-          onClick: switchToMajority
-        }
-      },
-      name:'example',
+      protocols:[
+        'voter',
+        'majority'
+      ],
       onClick: toggleOpinion,
   },
   glauber:{
-    protocols:{
-      glauber:{
-        icon: 'glauber icon',
-        tooltip: 'glauber tooltip',
-        functions:{
-    
-        },
-        onClick: switchToVoter
-      },
-      filler:{
-        icon: 'filler icon',
-        tooltip: 'filler tooltip',
-        functions:{
-    
-        },
-        onClick: switchToVoter
-      }
-    },
-    name:'example2',
+    protocols:[
+      'glauber',
+      'filler'
+    ],
     onClick: toggleGlauber,
   },
   rumor:{
-    protocols:{
-      regular:{
-        icon: 'regular icon',
-        tooltip: 'regular tooltip',
-        functions:{
-    
-        },
-        onClick:switchToRumor
-      },
-      SIRmodel:{
-        icon: 'SIRmodel icon',
-        tooltip: 'SIRmodel tooltip',
-        functions:{
-    
-        },
-        onClick: switchToVoter
-      },
-      more:{
-        icon: 'more icon',
-        tooltip: 'more tooltip',
-        functions:{
-    
-        },
-        onClick: switchToMajority
-      }
-    },
-    name:'example3',
+    protocols:[
+      'more',
+      'SIRmodel',
+      'regular'
+    ],
     onClick: toggleRumor,
   }
+}
+/** TODO change logic to have one forward backwards pause functoin for every protocol and handle differences outside of functions. */
+export const protocols={
+  more:{
+    functions:{
+        forward: 'voter forward',
+        backwards: 'voter backwards',
+        startStop : 'voter Startstop'
+    },
+    onClick: switchToMajority
+  },
+  SIRmodel:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick: switchToVoter
+  },
+  regular:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick:switchToRumor
+  },      
+  glauber:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick: switchToVoter
+  },
+  filler:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick: switchToVoter
+  },
+  voter:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick: switchToVoter
+  },
+  majority:{
+    functions:{
+      forward: 'voter forward',
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop'
+    },
+    onClick: switchToMajority
+    }
 }

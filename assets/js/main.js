@@ -3,7 +3,7 @@ import { getState, updateState, getStateChanges } from './state.js'
 import { randomGraph} from './graph.js'
 import {changeVertex} from './opinion.js'
 import {getVertexColor} from './visuals.js'
-import {drawNav} from './draw.js'
+import {drawNav, drawControlPanel} from './draw.js'
 let simulation
 let draggingNode
 let hoveringNode
@@ -79,7 +79,8 @@ updateState(state)
     const graph = randomGraph(state.n, state.m, state.seed)
     const random = Math.seedrandom ? new Math.seedrandom(state.protocolSeed) : Math.random; // eslint-disable-line
     drawGraph(state,graph)
-    drawNav(state)
+    drawNav()
+    drawControlPanel()
     /** TODO add button to do one iteration */
   } else {
     if (changedFields.has('charge')) {

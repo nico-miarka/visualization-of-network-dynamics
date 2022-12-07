@@ -1,6 +1,7 @@
-import {topics} from "./graph.js";
+import {topics,protocols} from "./graph.js";
+import { getState } from "./state.js";
 
-export function drawNav (state){
+export function drawNav (){
     const nav = document.getElementById('nav')
     while (nav.firstChild) {
         nav.removeChild(nav.lastChild)
@@ -15,11 +16,25 @@ export function drawNav (state){
         ul.id = item
         nav.appendChild(ul)
         ul.classList.add('dropdown', 'dropdown-animation')
-        for (const protocol in topics[item].protocols){
+        for (const protocol of topics[item].protocols){
             const subButton = document.createElement('li')
             subButton.classList.add('dropdown-item', protocol)
-            subButton.addEventListener('click',topics[item].protocols[protocol].onClick)
+            subButton.addEventListener('click',protocols[protocol].onClick)
             ul.appendChild(subButton)
         }
     }
+}
+/** TODO add forward backwards pause method + css */
+export function drawControlPanel(){
+    const state = getState()
+    const control = document.getElementById('control')
+    while (control.firstChild) {
+        control.removeChild(control.lastChild)
+      }
+    for (const method in protocols[state.protocol].functions){
+        const button = document.createElement('div')
+        button.id = method
+        control.appendChild(button)
+    }
+    
 }

@@ -6,13 +6,15 @@ export const state = {
   m: 40,
   charge: () => (document.getElementById('main').offsetWidth < 700) ? -100 : -200,
   navbar: true,
-  graph: 'rumor',
+  protocol: 'voter',
+  graph: {},
   seed: () => (Math.seedrandom) ? '' : undefined,
   protocolSeed: () => (Math.seedrandom) ? '' : undefined,
   count: false,
   charge: -50,
   color: ['tomato','lightblue','lightgreen','yellow','purple','orange','gray'],
   majority:1,
-  numberOfColors:3
+  numberOfColors:3,
+  sync: 'sync'
 }
 

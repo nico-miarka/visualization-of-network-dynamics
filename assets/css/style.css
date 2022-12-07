@@ -44,13 +44,19 @@ body {
 @media only screen and (min-width: 700px) {
   body {
     grid-template-areas:
-      "nav header crtrees"
-      "nav main   crtrees";
+      "nav header "
+      "nav main   "
+      "nav control ";
     grid-template-columns: 100px 1fr auto;
     grid-template-rows: 0 1fr;
   }
 }
+#control{
+  grid-area: control;
+  background-color: rgba(255, 0, 0, 0.61);
+  height:75px;
 
+}
 main {
   grid-area: main;
   overflow: hidden;
@@ -171,7 +177,11 @@ div.button > div {
   font-size: 1.5rem;
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
-
+#forward{
+  height:100%;
+  width:100px;
+  background-color: green;
+}
 div.button:hover i.material-icons,
 div.button:hover > div {
   background-color: #cecef6;
