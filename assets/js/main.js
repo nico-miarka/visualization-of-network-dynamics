@@ -65,7 +65,7 @@ updateState(state)
  async function reload (forceResample = false) {
   const state = getState()
   const changedFields = getStateChanges(state)
-  if (changedFields.has('graph')){
+  if (changedFields.has('protocol')){
     const graph = randomGraph(state.n,state.m,state.seed)
     drawGraph(state,graph)
   }
@@ -77,7 +77,6 @@ updateState(state)
       state.protocolSeed = Math.random().toString(36).substr(2, 5)
     }
     const graph = randomGraph(state.n, state.m, state.seed)
-    const random = Math.seedrandom ? new Math.seedrandom(state.protocolSeed) : Math.random; // eslint-disable-line
     drawGraph(state,graph)
     drawNav()
     drawControlPanel()

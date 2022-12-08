@@ -35,13 +35,7 @@ body {
   color: black;
 }
 
-@media only screen and (min-width: 500px) {
-  body {
-    grid-template-columns: 1fr auto;
-  }
-}
-
-@media only screen and (min-width: 700px) {
+@media only screen and (min-width: 0px) {
   body {
     grid-template-areas:
       "nav header "
@@ -51,12 +45,7 @@ body {
     grid-template-rows: 0 1fr;
   }
 }
-#control{
-  grid-area: control;
-  background-color: rgba(255, 0, 0, 0.61);
-  height:75px;
 
-}
 main {
   grid-area: main;
   overflow: hidden;
@@ -64,6 +53,7 @@ main {
 
 nav,
 #crtrees {
+  font-size: 0;
   background-color: #eee;
 }
 
@@ -77,7 +67,7 @@ header {
   padding-left: 2vw;
 }
 
-@media only screen and (min-width: 700px) {
+@media only screen and (min-width: 0px) {
   header { font-size: 3vw; }
   h1 { font-size: 1.5em; }
 }
@@ -92,14 +82,9 @@ nav {
   font-size: 40px;
 }
 
-@media only screen and (max-width: 699px) {
-  nav {
-    flex-direction: row;
-    justify-content: space-evenly;
-  }
-}
 
-@media only screen and (min-width: 700px) {
+
+@media only screen and (min-width: 0px) {
   nav {
     flex-direction: column;
     width: 100px;
@@ -120,19 +105,30 @@ div.button {
   display: inline-block;
 }
 nav div.button {
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 50px;
   width: 100%;
-  border-top: 1px solid black;
   border-bottom: 1px solid black;
   line-height: 0;
   overflow: visible;
+  cursor: pointer;
 }
+
 .dropdown{
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
 }
 .dropdown-item{
+  display: flex;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+  color:white;
   list-style-type: none;
   height: 50px;
   width: 100%;
@@ -140,6 +136,7 @@ nav div.button {
   line-height: 0;
   background-color: gray;
   overflow: visible;
+  cursor: pointer;
 }
 .show{
   max-height: 300px;
@@ -177,23 +174,41 @@ div.button > div {
   font-size: 1.5rem;
   font-family: Georgia, 'Times New Roman', Times, serif;
 }
-#forward{
-  height:100%;
-  width:100px;
-  background-color: green;
-}
+
 div.button:hover i.material-icons,
 div.button:hover > div {
   background-color: #cecef6;
   visibility: visible;
 }
-
-@media only screen and (hover: none) {
-  div.button:hover,
-  div.button:hover > div {
-    background-color: inherit;
-    visibility: hidden;
-  }
+#control{
+  grid-area: control;
+  display:flex;
+  justify-content: center;
+  height:75px;
+  padding-bottom: 10px;
+}
+#controlbar{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width:300px;
+  list-style-type: none;
+  height: 100%;
+}
+.controlbutton{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 30px;
+  line-height: 40px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  
+}
+.material-symbols-outlined{
+  font-size: 50px;
 }
 .center-screen {
   height: 99%;

@@ -1,4 +1,4 @@
-import {topics,protocols} from "./graph.js";
+import {topics,protocols,icons} from "./graph.js";
 import { getState } from "./state.js";
 
 export function drawNav (){
@@ -11,6 +11,7 @@ export function drawNav (){
         const button = document.createElement('div')
         button.classList.add('button', item)
         button.addEventListener('click', topics[item].onClick)
+        button.innerText = item
         nav.appendChild(button)
         const ul = document.createElement('ul')
         ul.id = item
@@ -18,6 +19,7 @@ export function drawNav (){
         ul.classList.add('dropdown', 'dropdown-animation')
         for (const protocol of topics[item].protocols){
             const subButton = document.createElement('li')
+            subButton.innerText = protocol
             subButton.classList.add('dropdown-item', protocol)
             subButton.addEventListener('click',protocols[protocol].onClick)
             ul.appendChild(subButton)
@@ -28,13 +30,21 @@ export function drawNav (){
 export function drawControlPanel(){
     const state = getState()
     const control = document.getElementById('control')
+    const controlbar = document.createElement('ul')
+    controlbar.id = 'controlbar'
     while (control.firstChild) {
         control.removeChild(control.lastChild)
       }
     for (const method in protocols[state.protocol].functions){
-        const button = document.createElement('div')
+        const button = document.createElement('li')
         button.id = method
-        control.appendChild(button)
+        button.classList.add('controlbutton')
+        button.addEventListener('click',()=>{console.log('poof')})
+        const icon = document.createElement('i')
+        icon.classList.add('material-symbols-outlined')
+        icon.innerText = icons[method]
+        button.appendChild(icon)
+        controlbar.appendChild(button)
     }
-    
+    control.appendChild(controlbar)
 }

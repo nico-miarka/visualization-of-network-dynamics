@@ -1,13 +1,17 @@
 import {counter} from './lib/counter.js'
+import {highlightVertex, highlightVertices, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
 
 /**TODO Generalize for h-neighbors (h-Majority) */
-import {highlightVertex, highlightVertices, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
 function pickVertex(graph,random){
     return graph.vertices[Math.floor(random() * graph.vertices.length)]
 }
 
-function pickNeighbors(vertex,random,majority){
-    const shuffled = vertex.neighbors.sort(() => 0.5 - random());
+function pickNeighbors(graph,vertex,random,majority){
+    const neighbors = []
+    for (const i of vertex.neighbors){
+        neighbors.push(graph.vertices[i])
+    }
+    const shuffled = neighbors.sort(() => 0.5 - random());
     return shuffled.slice(0,majority)
 }
 
@@ -52,7 +56,7 @@ export async function changeVertex (graph,random,h){
     await sleep(2000)
     grayOutGraph()
     highlightVertex(vertex)
-    const neighbors = pickNeighbors(vertex, random,h)
+    const neighbors = pickNeighbors(graph,vertex, random,h)
     await sleep(2000)
     highlightVertices(neighbors)
     await sleep(2000)

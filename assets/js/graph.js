@@ -1,5 +1,6 @@
 import { getState, updateState } from "./state.js";
 import {changeVertex} from './opinion.js'
+import { update } from "./lib/hash.js";
 /** return default graph with n vertices
  * @param {Number} n vertices
  * @return {Graph}
@@ -8,7 +9,7 @@ function create_graph(n,random) {
   const graph = { vertices: [], edges: [] };
   const state = getState()
   var numberOfColors = 2
-  if (state.graph === 'majority' || state.graph == "rumor" ){
+  if (state.protocol === 'majority' || state.protocol == "rumor" ){
     numberOfColors = state.numberOfColors
   }
   for (let i = 0; i < n; i++) {
@@ -21,8 +22,8 @@ function create_graph(n,random) {
 function addEdge(graph,edge){
 
     graph.edges.push(edge)
-    edge.target.neighbors.push(edge.source)
-    edge.source.neighbors.push(edge.target)
+    edge.target.neighbors.push(edge.source.name)
+    edge.source.neighbors.push(edge.target.name)
 }
 
 function makeRandomEdge(graph,random){
@@ -55,8 +56,8 @@ function randomWalk(n,m,random,maxNumEdges){
       graph.vertices[Math.floor(random() * graph.vertices.length)];
     if (!visited.has(nextVertex)) {
       graph.edges.push({ source: currentVertex, target: nextVertex });
-      currentVertex.neighbors.push(nextVertex);
-      nextVertex.neighbors.push(currentVertex);
+      currentVertex.neighbors.push(nextVertex.name);
+      nextVertex.neighbors.push(currentVertex.name);
       unvisited.delete(nextVertex);
       visited.add(nextVertex);
     }
@@ -75,7 +76,8 @@ export function randomGraph(n, m, seed) {
   const maxNumEdges = n * (n - 1) / 2
   const random = Math.seedrandom ? new Math.seedrandom(seed) : Math.random; // eslint-disable-line
   const graph = randomWalk(n,m,random,maxNumEdges)
-  return graph;
+  updateState({graph:graph})
+  return graph
 }
 
 
@@ -111,8 +113,6 @@ function crtrees(n,m,random,maxNumEdges){
   }
   return graph
 }
-/** TODO implement state toggle for topics
-*/ 
 
 function toggleProtocol(key){
   return () => {
@@ -125,7 +125,7 @@ const toggleRumor = toggleProtocol('rumor')
 
 /** TODO add switchProtocol function to onclick switch protocol + draw new graph */
 function switchProtocol(key){
-  return ()=> {updateState({graph: key})
+  return ()=> {updateState({protocol: key})
 }
 }
 
@@ -161,58 +161,63 @@ export const topics = {
 export const protocols={
   more:{
     functions:{
-        forward: 'voter forward',
-        backwards: 'voter backwards',
-        startStop : 'voter Startstop'
+      backwards: 'voter backwards',
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToMajority
   },
   SIRmodel:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToVoter
   },
   regular:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick:switchToRumor
   },      
   glauber:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToVoter
   },
   filler:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToVoter
   },
   voter:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToVoter
   },
   majority:{
     functions:{
-      forward: 'voter forward',
       backwards: 'voter backwards',
-      startStop : 'voter Startstop'
+      startStop : 'voter Startstop',
+      forward: 'voter forward',
     },
     onClick: switchToMajority
     }
+}
+export const icons = {
+  forward: 'arrow_forward_ios',
+  backwards: 'arrow_back_ios',
+  startStop: 'play_arrow'
 }

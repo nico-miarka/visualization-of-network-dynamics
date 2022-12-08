@@ -1,5 +1,5 @@
 import { merge } from './object.js'
-
+/** TODO change graph hash */
 export function get (...defaults) {
   const hash = decodeURIComponent(window.location.hash.substr(1))
 
