@@ -68,8 +68,12 @@ header {
 }
 
 @media only screen and (min-width: 0px) {
-  header { font-size: 3vw; }
-  h1 { font-size: 1.5em; }
+  header {
+    font-size: 3vw;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
 }
 
 header > div {
@@ -82,8 +86,6 @@ nav {
   font-size: 40px;
 }
 
-
-
 @media only screen and (min-width: 0px) {
   nav {
     flex-direction: column;
@@ -91,16 +93,18 @@ nav {
   }
 }
 
-.opinion{
+.opinion {
   background-color: red;
 }
-.glauber{
+.glauber {
   background-color: blue;
 }
 .rumor {
   background-color: green;
 }
-
+.reload {
+  background-color: orange;
+}
 div.button {
   display: inline-block;
 }
@@ -118,27 +122,27 @@ nav div.button {
   cursor: pointer;
 }
 
-.dropdown{
+.dropdown {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
 }
-.dropdown-item{
+.dropdown-item {
   display: flex;
   font-size: 20px;
   align-items: center;
   justify-content: center;
-  color:white;
+  color: white;
   list-style-type: none;
   height: 50px;
   width: 100%;
-  border: 1px solid black;
+  border-bottom: 1px solid black;
   line-height: 0;
   background-color: gray;
   overflow: visible;
   cursor: pointer;
 }
-.show{
+.show {
   max-height: 300px;
 }
 
@@ -172,7 +176,7 @@ div.button > div {
   padding-top: 1rem;
   padding-bottom: 1rem;
   font-size: 1.5rem;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
 }
 
 div.button:hover i.material-icons,
@@ -180,22 +184,22 @@ div.button:hover > div {
   background-color: #cecef6;
   visibility: visible;
 }
-#control{
+#control {
   grid-area: control;
-  display:flex;
+  display: flex;
   justify-content: center;
-  height:75px;
+  height: 75px;
   padding-bottom: 10px;
 }
-#controlbar{
+#controlbar {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  width:300px;
+  width: 300px;
   list-style-type: none;
   height: 100%;
 }
-.controlbutton{
+.controlbutton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,9 +209,8 @@ div.button:hover > div {
   height: 40px;
   width: 40px;
   cursor: pointer;
-  
 }
-.material-symbols-outlined{
+.material-symbols-outlined {
   font-size: 50px;
 }
 .center-screen {

@@ -4,16 +4,26 @@
 export const state = {
   n: 50,
   m: 40,
-  charge: () => (document.getElementById('main').offsetWidth < 700) ? -100 : -200,
-  protocol: 'voter',
+  charge: () =>
+    document.getElementById("main").offsetWidth < 700 ? -100 : -200,
+  protocol: "voter",
   graph: {},
-  seed: () => (Math.seedrandom) ? '' : undefined,
-  protocolSeed: () => (Math.seedrandom) ? '' : undefined,
-  charge: -50,
-  color: ['tomato','lightblue','lightgreen','yellow','purple','orange','gray'],
-  majority:1,
-  numberOfColors:3,
-  sync: 'sync',
-  t:0
-}
 
+  graphRandom: "",
+  protocolRandom: "",
+  colorRandom: "",
+  charge: -50,
+  color: [
+    "tomato",
+    "lightblue",
+    "lightgreen",
+    "yellow",
+    "purple",
+    "orange",
+    "gray",
+  ],
+  majority: 1,
+  numberOfColors: 3,
+  sync: "sync",
+  t: 0,
+};
