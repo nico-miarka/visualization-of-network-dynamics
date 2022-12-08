@@ -9,9 +9,9 @@ export const state = {
   protocol: "voter",
   graph: {},
 
-  graphRandom: "",
-  protocolRandom: "",
-  colorRandom: "",
+  seed: "",
+  protocolSeed: "",
+  colorSeed: "",
   charge: -50,
   color: [
     "tomato",

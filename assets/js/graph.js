@@ -5,9 +5,12 @@ import { update } from "./lib/hash.js";
  * @param {Number} n vertices
  * @return {Graph}
  */
-function create_graph(n, random) {
+function create_graph(n) {
   const graph = { vertices: [], edges: [] };
   const state = getState();
+  const random = Math.seedrandom
+    ? new Math.seedrandom(state.colorSeed)
+    : Math.random;
   var numberOfColors = 2;
   if (state.protocol === "majority" || state.protocol == "rumor") {
     numberOfColors = state.numberOfColors;
@@ -141,6 +144,19 @@ const switchToRumor = switchProtocol("rumor");
 const switchToVoter = switchProtocol("voter");
 const switchToMajority = switchProtocol("majority");
 
+export function reloadSeed(seed) {
+  return () => {
+    const state = getState();
+    console.log(state[seed]);
+    state[seed] = Math.random().toString(36).substr(2, 5);
+    console.log(state[seed]);
+    updateState(state);
+  };
+}
+const reloadGraphSeed = reloadSeed("seed");
+const reloadColorSeed = reloadSeed("colorSeed");
+const reloadProtocolSeed = reloadSeed("protocolSeed");
+
 export const topics = {
   opinion: {
     protocols: ["voter", "majority"],
@@ -217,9 +233,15 @@ export const protocols = {
     },
     onClick: switchToMajority,
   },
-  graph: {},
-  color: {},
-  algo: {},
+  graph: {
+    onClick: reloadGraphSeed,
+  },
+  color: {
+    onClick: reloadColorSeed,
+  },
+  algo: {
+    onClick: reloadProtocolSeed,
+  },
 };
 export const icons = {
   forward: "arrow_forward_ios",

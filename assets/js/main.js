@@ -1,6 +1,6 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from "./state.js";
-import { randomGraph } from "./graph.js";
+import { randomGraph, reloadSeed } from "./graph.js";
 import { changeVertex } from "./opinion.js";
 import { getVertexColor } from "./visuals.js";
 import { drawNav, drawControlPanel } from "./draw.js";
@@ -78,6 +78,13 @@ function drawGraph(state, graph) {
 async function reload(forceResample = false) {
   const state = getState();
   const changedFields = getStateChanges(state);
+  if (Math.seedrandom && state.seed === "") {
+    state.seed = Math.random().toString(36).substr(2, 5);
+    /** TODO  seperate protocolSeed reload*/
+    state.protocolSeed = Math.random().toString(36).substr(2, 5);
+
+    state.colorSeed = Math.random().toString(36).substr(2, 5);
+  }
   if (changedFields.has("protocol")) {
     const graph = randomGraph(state.n, state.m, state.seed);
     drawGraph(state, graph);
@@ -87,19 +94,13 @@ async function reload(forceResample = false) {
     changedFields === undefined ||
     changedFields.has("n") ||
     changedFields.has("m") ||
-    changedFields.has("seed")
+    changedFields.has("seed") ||
+    changedFields.has("colorSeed")
   ) {
-    if (Math.seedrandom && (state.seed === "" || forceResample)) {
-      state.seed = Math.random().toString(36).substr(2, 5);
-      /** TODO  seperate protocolSeed reload*/
-      state.protocolSeed = Math.random().toString(36).substr(2, 5);
-
-      state.colorSeed = Math.random().toString(36).substr(2, 5);
-    }
     const graph = randomGraph(state.n, state.m, state.seed);
     drawGraph(state, graph);
-    drawNav();
     drawControlPanel();
+
     /** TODO add button to do one iteration */
   } else {
     if (changedFields.has("charge")) {
@@ -187,6 +188,7 @@ function main() {
   document.addEventListener("keydown", shortcuts);
   window.addEventListener("hashchange", () => reload());
   window.onresize = recenter;
+  drawNav();
   reload();
 }
 
