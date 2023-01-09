@@ -1,4 +1,6 @@
 import {counter} from './lib/counter.js'
+import { getState } from './state.js'
+import { getGraph } from './graphUpdate.js'
 import {highlightVertex, highlightVertices, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
 
 /**TODO Generalize for h-neighbors (h-Majority) */
@@ -51,16 +53,21 @@ function changeOpinion (vertex, neighbors,h){
     
 }
 
-export async function changeVertex (graph,random,h){
+export async function changeVertex (){
+    const state = getState()
+    const graph = getGraph()
+    const random = Math.seedrandom
+    ? new Math.seedrandom(state.protocolSeed)
+    : Math.random;
     const vertex = pickVertex(graph, random)
     await sleep(2000)
     grayOutGraph()
     highlightVertex(vertex)
-    const neighbors = pickNeighbors(graph,vertex, random,h)
+    const neighbors = pickNeighbors(graph,vertex, random,state.majority)
     await sleep(2000)
     highlightVertices(neighbors)
     await sleep(2000)
-    changeOpinion(vertex,neighbors,h)
+    changeOpinion(vertex,neighbors,state.majority)
     drawVertexColor(vertex)
     await sleep(2000)
     resetHighlightGraph()

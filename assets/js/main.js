@@ -1,6 +1,7 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from "./state.js";
-import { randomGraph, reloadSeed } from "./graph.js";
+import { getGraph, setGraph } from "./graphUpdate.js";
+import { randomGraph, reloadSeed } from "./randomGraph.js";
 import { changeVertex } from "./opinion.js";
 import { getVertexColor } from "./visuals.js";
 import { drawNav, drawControlPanel } from "./draw.js";
@@ -87,6 +88,7 @@ async function reload(forceResample = false) {
   }
   if (changedFields.has("protocol")) {
     const graph = randomGraph(state.n, state.m, state.seed);
+    setGraph(graph)
     drawGraph(state, graph);
   }
   if (
@@ -97,6 +99,7 @@ async function reload(forceResample = false) {
     changedFields.has("seed") ||
     changedFields.has("colorSeed")
   ) {
+
     const graph = randomGraph(state.n, state.m, state.seed);
     drawGraph(state, graph);
     drawControlPanel();

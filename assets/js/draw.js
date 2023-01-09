@@ -1,4 +1,4 @@
-import { topics, protocols, icons } from "./graph.js";
+import { topics,protocols,icons, controlBarButtons } from "./dynamicChanges.js";
 import { getState } from "./state.js";
 
 export function drawNav() {
@@ -25,6 +25,12 @@ export function drawNav() {
       ul.appendChild(subButton);
     }
   }
+  const button = document.createElement("div");
+  button.classList.add("button", "sync");
+  button.addEventListener("click", ()=>{return});
+  button.innerText = "sync";
+  nav.appendChild(button);
+
 }
 /** TODO add forward backwards pause method + css */
 export function drawControlPanel() {
@@ -39,9 +45,7 @@ export function drawControlPanel() {
     const button = document.createElement("li");
     button.id = method;
     button.classList.add("controlbutton");
-    button.addEventListener("click", () => {
-      console.log("poof");
-    });
+    button.addEventListener("click", controlBarButtons(state,method));
     const icon = document.createElement("i");
     icon.classList.add("material-symbols-outlined");
     icon.innerText = icons[method];

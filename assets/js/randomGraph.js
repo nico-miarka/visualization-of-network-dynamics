@@ -86,7 +86,6 @@ export function randomGraph(n, m, seed) {
   const maxNumEdges = (n * (n - 1)) / 2;
   const random = Math.seedrandom ? new Math.seedrandom(seed) : Math.random; // eslint-disable-line
   const graph = randomWalk(n, m, random, maxNumEdges);
-  updateState({ graph: graph });
   return graph;
 }
 
@@ -175,61 +174,64 @@ export const topics = {
     onClick: toggleReload,
   },
 };
+const filler = () => {
+  console.log("poof");
+}
 /** TODO change logic to have one forward backwards pause functoin for every protocol and handle differences outside of functions. */
 export const protocols = {
   more: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToMajority,
   },
   SIRmodel: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToVoter,
   },
   regular: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToRumor,
   },
   glauber: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToVoter,
   },
   filler: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToVoter,
   },
   voter: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToVoter,
   },
   majority: {
     functions: {
-      backwards: "voter backwards",
-      startStop: "voter Startstop",
-      forward: "voter forward",
+      backwards: filler,
+      startStop: filler,
+      forward: filler,
     },
     onClick: switchToMajority,
   },

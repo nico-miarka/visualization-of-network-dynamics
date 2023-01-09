@@ -105,6 +105,9 @@ nav {
 .reload {
   background-color: orange;
 }
+.sync{
+  background-color: purple;
+}
 div.button {
   display: inline-block;
 }

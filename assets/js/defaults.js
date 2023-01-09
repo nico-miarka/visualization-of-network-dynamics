@@ -7,8 +7,6 @@ export const state = {
   charge: () =>
     document.getElementById("main").offsetWidth < 700 ? -100 : -200,
   protocol: "voter",
-  graph: {},
-
   seed: "",
   protocolSeed: "",
   colorSeed: "",
