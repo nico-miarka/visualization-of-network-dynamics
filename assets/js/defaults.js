@@ -20,8 +20,8 @@ export const state = {
     "orange",
     "gray",
   ],
-  majority: 1,
-  numberOfColors: 3,
+  majority: 2,
+  numberOfColors: 2,
   sync: "sync",
-  t: 0,
+  time: 0,
 };

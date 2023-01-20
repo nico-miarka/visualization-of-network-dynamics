@@ -1,5 +1,6 @@
 import { getState, updateState } from "./state.js";
 import { changeVertex } from "./opinion.js";
+import { changeVoterVertex } from "./voter.js";
 function toggleProtocol(key) {
   return () => {
     document.getElementById(key).classList.toggle("show");
@@ -101,7 +102,7 @@ export const protocols = {
     functions: {
       backwards: filler,
       startStop: filler,
-      forward: changeVertex,
+      forward: changeVoterVertex,
     },
     onClick: switchToVoter,
   },
@@ -109,7 +110,7 @@ export const protocols = {
     functions: {
       backwards: filler,
       startStop: filler,
-      forward: filler,
+      forward: changeVertex,
     },
     onClick: switchToMajority,
   },

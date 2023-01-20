@@ -1,10 +1,10 @@
 import {counter} from './lib/counter.js'
-import { getState } from './state.js'
-import { getGraph } from './graphUpdate.js'
+import { getState,updateState } from './state.js'
+import { getGraph,getProtocolRandom } from './graphUpdate.js'
 import {highlightVertex, highlightVertices, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
 
 /**TODO Generalize for h-neighbors (h-Majority) */
-function pickVertex(graph,random){
+export function pickVertex(graph,random){
     return graph.vertices[Math.floor(random() * graph.vertices.length)]
 }
 
@@ -32,8 +32,9 @@ Object.getOwnPropertyNames(opinions).forEach(k => {
     return result
 }
 
-function changeOpinion (vertex, neighbors,h){
-    if (h === 1){
+function changeOpinion (vertex, neighbors,majority){
+    console.log(majority)
+    if (majority === 1){
         vertex.level = neighbors[0].level
         return
     }
@@ -56,22 +57,20 @@ function changeOpinion (vertex, neighbors,h){
 export async function changeVertex (){
     const state = getState()
     const graph = getGraph()
-    const random = Math.seedrandom
-    ? new Math.seedrandom(state.protocolSeed)
-    : Math.random;
-    const vertex = pickVertex(graph, random)
-    await sleep(2000)
+    var random = getProtocolRandom()
+    var vertex = pickVertex(graph, random)
+    await sleep(1000)
     grayOutGraph()
     highlightVertex(vertex)
-    const neighbors = pickNeighbors(graph,vertex, random,state.majority)
-    await sleep(2000)
+    var neighbors = pickNeighbors(graph,vertex, random,state.majority)
+    await sleep(1000)
     highlightVertices(neighbors)
-    await sleep(2000)
+    await sleep(1000)
     changeOpinion(vertex,neighbors,state.majority)
     drawVertexColor(vertex)
-    await sleep(2000)
+    await sleep(1000)
     resetHighlightGraph()
-    await sleep(2000)
+    await sleep(1000)
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

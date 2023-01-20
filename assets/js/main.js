@@ -1,8 +1,7 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from "./state.js";
-import { getGraph, setGraph } from "./graphUpdate.js";
-import { randomGraph, reloadSeed } from "./randomGraph.js";
-import { changeVertex } from "./opinion.js";
+import { setGraph, setProtocolRandom,getProtocolRandom } from "./graphUpdate.js";
+import { randomGraph} from "./randomGraph.js";
 import { getVertexColor } from "./visuals.js";
 import { drawNav, drawControlPanel } from "./draw.js";
 let simulation;
@@ -81,15 +80,18 @@ async function reload(forceResample = false) {
   const changedFields = getStateChanges(state);
   if (Math.seedrandom && state.seed === "") {
     state.seed = Math.random().toString(36).substr(2, 5);
-    /** TODO  seperate protocolSeed reload*/
     state.protocolSeed = Math.random().toString(36).substr(2, 5);
-
+    setProtocolRandom(state.protocolSeed)
     state.colorSeed = Math.random().toString(36).substr(2, 5);
   }
   if (changedFields.has("protocol")) {
     const graph = randomGraph(state.n, state.m, state.seed);
+    drawControlPanel();
     setGraph(graph)
     drawGraph(state, graph);
+  }
+  if (changedFields.has("protocolSeed")){
+    setProtocolRandom(state.protocolSeed)
   }
   if (
     forceResample ||
@@ -101,8 +103,8 @@ async function reload(forceResample = false) {
   ) {
 
     const graph = randomGraph(state.n, state.m, state.seed);
+    setGraph(graph)
     drawGraph(state, graph);
-    drawControlPanel();
 
     /** TODO add button to do one iteration */
   } else {
