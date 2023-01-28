@@ -1,6 +1,9 @@
 import { getState, updateState } from "./state.js";
 import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
+let running = false;
+let intervalId;
+
 function toggleProtocol(key) {
   return () => {
     document.getElementById(key).classList.toggle("show");
@@ -57,6 +60,19 @@ const filler = () => {
   console.log("poof");
 }
 /** TODO change logic to have one forward backwards pause functoin for every protocol and handle differences outside of functions. */
+
+function startStop (forwardFunction){
+  return () =>{
+  if(running){
+    clearInterval(intervalId);
+    running = false;
+  } else {
+    intervalId = setInterval(forwardFunction, 4000)
+    running = true;
+  }
+}
+}
+const voterStartStop = startStop(changeVoterVertex)
 export const protocols = {
   more: {
     functions: {
@@ -101,7 +117,7 @@ export const protocols = {
   voter: {
     functions: {
       backwards: filler,
-      startStop: filler,
+      startStop: voterStartStop,
       forward: changeVoterVertex,
     },
     onClick: switchToVoter,

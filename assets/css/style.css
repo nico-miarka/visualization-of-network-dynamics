@@ -38,9 +38,9 @@ body {
 @media only screen and (min-width: 0px) {
   body {
     grid-template-areas:
-      "nav header "
-      "nav main   "
-      "nav control ";
+      "nav header plot-container"
+      "nav main plot-container"
+      "nav control plot-container";
     grid-template-columns: 100px 1fr auto;
     grid-template-rows: 0 1fr;
   }
@@ -187,6 +187,23 @@ div.button:hover > div {
   background-color: #cecef6;
   visibility: visible;
 }
+#plot-container{
+  grid-area: plot-container;
+  position: relative;
+  display:flex;
+  width: 500px;
+  background-color: #eee;
+}
+#plot-container .resizer{
+  position:absolute;
+  width: 10px;
+  top: 0;
+  bottom: 0;
+  left:-5px;
+  background:green;
+  cursor:col-resize;
+}
+
 #control {
   grid-area: control;
   display: flex;
