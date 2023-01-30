@@ -66,7 +66,11 @@ header {
   text-align: left;
   padding-left: 2vw;
 }
-
+.plotbutton {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+}
 @media only screen and (min-width: 0px) {
   header {
     font-size: 3vw;
@@ -105,7 +109,7 @@ nav {
 .reload {
   background-color: orange;
 }
-.sync{
+.sync {
   background-color: purple;
 }
 div.button {
@@ -187,21 +191,21 @@ div.button:hover > div {
   background-color: #cecef6;
   visibility: visible;
 }
-#plot-container{
+#plot-container {
   grid-area: plot-container;
   position: relative;
-  display:flex;
+  display: flex;
   width: 500px;
   background-color: #eee;
 }
-#plot-container .resizer{
-  position:absolute;
+#plot-container .resizer {
+  position: absolute;
   width: 10px;
   top: 0;
   bottom: 0;
-  left:-5px;
-  background:green;
-  cursor:col-resize;
+  left: -5px;
+  background: green;
+  cursor: col-resize;
 }
 
 #control {
