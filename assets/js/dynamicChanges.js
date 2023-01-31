@@ -1,6 +1,7 @@
 import { getState, updateState } from "./state.js";
 import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
+import { update } from "./lib/hash.js";
 let running = false;
 let intervalId;
 
@@ -71,6 +72,37 @@ function startStop (forwardFunction){
     running = true;
   }
 }
+}
+function startStops (){
+  return () =>{
+  const state = getState()
+  const forwardFunction = forwards(state.protocol)
+  if(running){
+    clearInterval(intervalId);
+    running = false;
+  } else {
+    intervalId = setInterval(forwardFunction, 4000)
+    running = true;
+  }
+}
+}
+export function forwards(protocol){
+  const state = getState()
+  updateState({time:state.time+1})
+  switch(protocol){
+    case "voter":
+      return changeVoterVertex
+    case "majority":
+      return changeVertex
+    case "more":
+      return filler
+    case "SIRmodel":
+      return filler
+    case "regular":
+      return filler
+    case "glauber":
+      return filler
+  }
 }
 const voterStartStop = startStop(changeVoterVertex)
 export const protocols = {
