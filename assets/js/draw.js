@@ -62,15 +62,19 @@ export function drawControlPanel() {
   control.appendChild(controlbar);
 }
 
-export function drawPlots() {
-  const div = document.getElementById("plot-container");
+export function drawPlotBar() {
+  const div = document.getElementById("plotBar");
   while (div.firstChild) {
     div.removeChild(div.lastChild);
   }
   for (const plot in plots) {
     const plotButton = document.createElement("div");
     plotButton.classList.add("plotbutton");
+    const plotContainer = document.createElement("div")
+    plotButton.id = plot
+    plotContainer.classList.add("plotContainer")
     plotButton.addEventListener("click", plots[plot].onClick);
+    plotButton.appendChild(plotContainer)
     div.appendChild(plotButton);
   }
 }

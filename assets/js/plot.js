@@ -1,5 +1,11 @@
 export const plots = {
   stateDistribution: {
-    onClick: expandStateDistribution,
-  },
+    onClick: toggleProtocol("stateDistribution"),
+  }
 };
+function toggleProtocol(key) {
+  return () => {
+    document.getElementById(key).classList.toggle("show");
+    console.log('poof')
+  };
+}

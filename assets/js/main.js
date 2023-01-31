@@ -3,7 +3,7 @@ import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom,getProtocolRandom } from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
 import { getVertexColor } from "./visuals.js";
-import { drawNav, drawControlPanel } from "./draw.js";
+import { drawNav, drawControlPanel, drawPlotBar} from "./draw.js";
 let simulation;
 let draggingNode;
 let hoveringNode;
@@ -89,6 +89,8 @@ async function reload(forceResample = false) {
     drawControlPanel();
     setGraph(graph)
     drawGraph(state, graph);
+    drawPlotBar();
+    
   }
   if (changedFields.has("protocolSeed")){
     setProtocolRandom(state.protocolSeed)
@@ -105,6 +107,7 @@ async function reload(forceResample = false) {
     const graph = randomGraph(state.n, state.m, state.seed);
     setGraph(graph)
     drawGraph(state, graph);
+    drawPlotBar();
 
     /** TODO add button to do one iteration */
   } else {
