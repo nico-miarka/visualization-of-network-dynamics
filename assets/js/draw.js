@@ -2,7 +2,6 @@ import {
   topics,
   protocols,
   icons,
-  controlBarButtons,
   protocolFunctions,
 } from "./dynamicChanges.js";
 import { getState } from "./state.js";

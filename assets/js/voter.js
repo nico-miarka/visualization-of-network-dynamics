@@ -1,20 +1,19 @@
 import {pickVertex} from './opinion.js'
 import { getGraph, getProtocolRandom } from './graphUpdate.js'
-import {highlightVertex, highlightVertices, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
-
-
+import {highlightVertex, grayOutGraph,drawVertexColor, resetHighlightGraph} from './visuals.js'
+import { updateChanges,getChanges } from './dynamicChanges.js'
+import { getState } from './state.js'
 
 function pickNeighbor(graph,vertex,random){
-    console.log(vertex.neighbors)
     return graph.vertices[vertex.neighbors[Math.floor(random() * vertex.neighbors.length)]]
     
 }
 
 function changeVoterOpinion(vertex,neighbor){
-    console.log(neighbor)
-    console.log(vertex)
+    if (vertex.level !== neighbor.level){
+    updateChanges(vertex.name,vertex.level,neighbor.level)
     vertex.level = neighbor.level
-    console.log(vertex)
+    }
 }
 
 export async function changeVoterVertex (){

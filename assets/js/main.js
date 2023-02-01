@@ -1,9 +1,11 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from "./state.js";
-import { setGraph, setProtocolRandom,getProtocolRandom } from "./graphUpdate.js";
+import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
 import { getVertexColor } from "./visuals.js";
 import { drawNav, drawControlPanel, drawPlotBar} from "./draw.js";
+import { setChanges } from "./dynamicChanges.js";
+import { sumOpinions,sumOfOpinions, setSumOfOpinions, getSumOfOpinions } from "./plot.js";
 let simulation;
 let draggingNode;
 let hoveringNode;
@@ -87,6 +89,8 @@ async function reload(forceResample = false) {
   if (changedFields.has("protocol")) {
     const graph = randomGraph(state.n, state.m, state.seed);
     drawControlPanel();
+    setChanges([]);
+    state.time = 0;
     setGraph(graph)
     drawGraph(state, graph);
     drawPlotBar();
@@ -101,11 +105,15 @@ async function reload(forceResample = false) {
     changedFields.has("n") ||
     changedFields.has("m") ||
     changedFields.has("seed") ||
-    changedFields.has("colorSeed")
+    changedFields.has("colorSeed") ||
+    changedFields.has("protocolSeed")
   ) {
 
     const graph = randomGraph(state.n, state.m, state.seed);
-    setGraph(graph)
+    setSumOfOpinions([sumOpinions()]);
+    setChanges([]);
+    state.time = 0;
+    setGraph(graph);
     drawGraph(state, graph);
     drawPlotBar();
 

@@ -1,7 +1,7 @@
 import { getState, updateState } from "./state.js";
 import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
-import { update } from "./lib/hash.js";
+import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
 let running = false;
 let intervalId;
 
@@ -29,9 +29,7 @@ const switchToMajority = switchProtocol("majority");
 export function reloadSeed(seed) {
   return () => {
     const state = getState();
-    console.log(state[seed]);
     state[seed] = Math.random().toString(36).substr(2, 5);
-    console.log(state[seed]);
     updateState(state);
   };
 }
@@ -60,45 +58,32 @@ export const topics = {
 const filler = () => {
   console.log("poof");
 };
-/** TODO change logic to have one forward backwards pause functoin for every protocol and handle differences outside of functions. */
 
-function startStop(forwardFunction) {
-  return () => {
-    if (running) {
-      clearInterval(intervalId);
-      running = false;
-    } else {
-      intervalId = setInterval(forwardFunction, 4000);
-      running = true;
-    }
-  };
-}
-function startStops() {
-  return () => {
+function startStop() {
+  return async () => {
     const state = getState();
-    const forwardFunction = forwards(state.protocol);
+    const forwardFunction = forwards();
     if (running) {
       clearInterval(intervalId);
       running = false;
     } else {
-      intervalId = setInterval(forwardFunction, 4000);
+      intervalId = setInterval(forwardFunction, 4500);
       running = true;
     }
   };
 }
 export function forwards() {
-  return () => {
+  return async() => {
     const state = getState();
-    console.log(state.time);
+    changes = getChanges()
+    changes[state.time] = {}
     updateState({ time: ++state.time });
-    console.log("test");
     switch (state.protocol) {
       case "voter":
-        console.log("test2");
-        changeVoterVertex();
+        await changeVoterVertex();
         break;
       case "majority":
-        changeVertex();
+        await changeVertex();
         break;
       case "more":
         filler();
@@ -113,14 +98,15 @@ export function forwards() {
         filler();
         break;
     }
+    changeOpinionSum();
+    console.log(getSumOfOpinions());
   };
 }
 export const protocolFunctions = {
   backwards: filler,
-  startStop: startStops,
+  startStop: startStop,
   forward: forwards,
 };
-const voterStartStop = startStop(changeVoterVertex);
 export const protocols = {
   more: {
     functions: {
@@ -164,17 +150,11 @@ export const protocols = {
   },
   voter: {
     functions: {
-      backwards: filler,
-      startStop: voterStartStop,
-      forward: changeVoterVertex,
     },
     onClick: switchToVoter,
   },
   majority: {
     functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: changeVertex,
     },
     onClick: switchToMajority,
   },
@@ -194,6 +174,17 @@ export const icons = {
   startStop: "play_arrow",
 };
 
-export function controlBarButtons(state, method) {
-  return protocols[state.protocol].functions[method];
+var changes = []
+
+export function updateChanges(key,oldValue,newValue){
+  const state = getState()
+  const changes = getChanges()
+  changes[state.time-1][key] = [oldValue,newValue]
+  setChanges(changes)
+}
+export function getChanges(){
+  return changes
+}
+export function setChanges(newChanges){
+  changes = newChanges
 }

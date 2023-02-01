@@ -33,11 +33,7 @@ Object.getOwnPropertyNames(opinions).forEach(k => {
 }
 
 function changeOpinion (vertex, neighbors,majority){
-    console.log(majority)
-    if (majority === 1){
-        vertex.level = neighbors[0].level
-        return
-    }
+
     /** own vertex opinion matters in h-majority therefore we include it in opinions */
     const opinions = neighbors.concat(vertex)
     const test = counter(opinions)
