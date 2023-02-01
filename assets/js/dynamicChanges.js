@@ -59,52 +59,68 @@ export const topics = {
 };
 const filler = () => {
   console.log("poof");
-}
+};
 /** TODO change logic to have one forward backwards pause functoin for every protocol and handle differences outside of functions. */
 
-function startStop (forwardFunction){
-  return () =>{
-  if(running){
-    clearInterval(intervalId);
-    running = false;
-  } else {
-    intervalId = setInterval(forwardFunction, 4000)
-    running = true;
-  }
+function startStop(forwardFunction) {
+  return () => {
+    if (running) {
+      clearInterval(intervalId);
+      running = false;
+    } else {
+      intervalId = setInterval(forwardFunction, 4000);
+      running = true;
+    }
+  };
 }
+function startStops() {
+  return () => {
+    const state = getState();
+    const forwardFunction = forwards(state.protocol);
+    if (running) {
+      clearInterval(intervalId);
+      running = false;
+    } else {
+      intervalId = setInterval(forwardFunction, 4000);
+      running = true;
+    }
+  };
 }
-function startStops (){
-  return () =>{
-  const state = getState()
-  const forwardFunction = forwards(state.protocol)
-  if(running){
-    clearInterval(intervalId);
-    running = false;
-  } else {
-    intervalId = setInterval(forwardFunction, 4000)
-    running = true;
-  }
+export function forwards() {
+  return () => {
+    const state = getState();
+    console.log(state.time);
+    updateState({ time: ++state.time });
+    console.log("test");
+    switch (state.protocol) {
+      case "voter":
+        console.log("test2");
+        changeVoterVertex();
+        break;
+      case "majority":
+        changeVertex();
+        break;
+      case "more":
+        filler();
+        break;
+      case "SIRmodel":
+        filler();
+        break;
+      case "regular":
+        filler();
+        break;
+      case "glauber":
+        filler();
+        break;
+    }
+  };
 }
-}
-export function forwards(protocol){
-  const state = getState()
-  updateState({time:state.time+1})
-  switch(protocol){
-    case "voter":
-      return changeVoterVertex
-    case "majority":
-      return changeVertex
-    case "more":
-      return filler
-    case "SIRmodel":
-      return filler
-    case "regular":
-      return filler
-    case "glauber":
-      return filler
-  }
-}
-const voterStartStop = startStop(changeVoterVertex)
+export const protocolFunctions = {
+  backwards: filler,
+  startStop: startStops,
+  forward: forwards,
+};
+const voterStartStop = startStop(changeVoterVertex);
 export const protocols = {
   more: {
     functions: {
@@ -178,6 +194,6 @@ export const icons = {
   startStop: "play_arrow",
 };
 
-export function controlBarButtons(state, method){
-  return protocols[state.protocol].functions[method]
+export function controlBarButtons(state, method) {
+  return protocols[state.protocol].functions[method];
 }

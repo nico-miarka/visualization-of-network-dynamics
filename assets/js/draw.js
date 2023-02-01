@@ -3,6 +3,7 @@ import {
   protocols,
   icons,
   controlBarButtons,
+  protocolFunctions,
 } from "./dynamicChanges.js";
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
@@ -48,11 +49,11 @@ export function drawControlPanel() {
   while (control.firstChild) {
     control.removeChild(control.lastChild);
   }
-  for (const method in protocols[state.protocol].functions) {
+  for (const method in protocolFunctions) {
     const button = document.createElement("li");
     button.id = method;
     button.classList.add("controlbutton");
-    button.addEventListener("click", controlBarButtons(state, method));
+    button.addEventListener("click", protocolFunctions[method]());
     const icon = document.createElement("i");
     icon.classList.add("material-symbols-outlined");
     icon.innerText = icons[method];
@@ -70,11 +71,11 @@ export function drawPlotBar() {
   for (const plot in plots) {
     const plotButton = document.createElement("div");
     plotButton.classList.add("plotbutton");
-    const plotContainer = document.createElement("div")
-    plotButton.id = plot
-    plotContainer.classList.add("plotContainer")
+    const plotContainer = document.createElement("div");
+    plotButton.id = plot;
+    plotContainer.classList.add("plotContainer");
     plotButton.addEventListener("click", plots[plot].onClick);
-    plotButton.appendChild(plotContainer)
+    plotButton.appendChild(plotContainer);
     div.appendChild(plotButton);
   }
 }
