@@ -3,9 +3,9 @@ import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
 import { getVertexColor } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar} from "./draw.js";
+import { drawNav, drawControlPanel, drawPlotBar,drawStateDistribution} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
-import { sumOpinions,sumOfOpinions, setSumOfOpinions, getSumOfOpinions } from "./plot.js";
+import { sumOpinions, setSumOfOpinions} from "./plot.js";
 let simulation;
 let draggingNode;
 let hoveringNode;
@@ -94,6 +94,7 @@ async function reload(forceResample = false) {
     setGraph(graph)
     drawGraph(state, graph);
     drawPlotBar();
+    drawStateDistribution();
     
   }
   if (changedFields.has("protocolSeed")){
@@ -116,6 +117,7 @@ async function reload(forceResample = false) {
     setGraph(graph);
     drawGraph(state, graph);
     drawPlotBar();
+    drawStateDistribution();
 
     /** TODO add button to do one iteration */
   } else {
@@ -166,14 +168,6 @@ function shortcuts(event) {
     else if (["n"].includes(event.key)) decrease("n");
   }
 }
-
-function drawNavElements(state) {
-  document.getElementById("nav").style.display = state.navbar ? "flex" : "none";
-  document.getElementById("n").innerText = state.n;
-  document.getElementById("m").innerText = state.m;
-  document.getElementById("charge").innerText = state.charge;
-}
-
 /** The main function is called when the page has loaded */
 function main() {
   simulation = d3.forceSimulation().on("tick", () => {

@@ -2,6 +2,7 @@ import { getState, updateState } from "./state.js";
 import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
 import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
+import { updateStateDistribution } from "./draw.js";
 let running = false;
 let intervalId;
 
@@ -100,6 +101,7 @@ export function forwards() {
     }
     changeOpinionSum();
     console.log(getSumOfOpinions());
+    updateStateDistribution();
   };
 }
 export const protocolFunctions = {

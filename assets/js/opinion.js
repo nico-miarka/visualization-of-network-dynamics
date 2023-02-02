@@ -66,7 +66,6 @@ export async function changeVertex (){
     drawVertexColor(vertex)
     await sleep(1000)
     resetHighlightGraph()
-    await sleep(1000)
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

@@ -6,6 +6,7 @@ import {
 } from "./dynamicChanges.js";
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
+import { getSumOfOpinions } from "./plot.js";
 
 export function drawNav() {
   const nav = document.getElementById("nav");
@@ -68,13 +69,96 @@ export function drawPlotBar() {
     div.removeChild(div.lastChild);
   }
   for (const plot in plots) {
-    const plotButton = document.createElement("div");
-    plotButton.classList.add("plotbutton");
     const plotContainer = document.createElement("div");
-    plotButton.id = plot;
+    plotContainer.id = plot;
     plotContainer.classList.add("plotContainer");
-    plotButton.addEventListener("click", plots[plot].onClick);
-    plotButton.appendChild(plotContainer);
-    div.appendChild(plotButton);
+    div.appendChild(plotContainer);
   }
+}
+//TODO when protocol changes, reset the graph
+export function drawStateDistribution(){
+  const height = 300;
+  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
+  const svg = d3.select("#stateDistribution")
+  .append('svg')
+  .classed('stateDistribution',true)
+  .attr('width', 400)
+  .attr('height',300)
+  const sumOfOpinions = getSumOfOpinions();
+  var x = d3.scaleLinear()
+    .domain([0, 30])         
+    .range([40, 380]); 
+  var y = d3.scaleLinear()
+    .domain([0,50])
+    .range([240,10])
+    svg.append('g')
+      .call(d3.axisBottom(x))
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+    svg.append('g')
+      .call(d3.axisLeft(y))
+      .attr('transform', `translate(${margin.left},0)`)
+  const line1 = d3.line()
+      .x((d,i) => x(i))
+      .y(d => y(d[0]))
+  const line2 = d3.line()
+      .x((d,i) => x(i))
+      .y(d => y(d[1]))
+  svg
+    .append('path')
+    .datum(sumOfOpinions)
+    .attr('fill','none')
+    .attr('stroke','red')
+    .attr('stroke-width',1.5)
+    .attr("d",line1)
+  svg
+    .append('path')
+    .datum(sumOfOpinions)
+    .attr('fill','none')
+    .attr('stroke','blue')
+    .attr('stroke-width',1.5)
+    .attr("d",line2)
+}
+export function updateStateDistribution(){
+  d3.select('svg').remove()
+  const svg = d3.select("#stateDistribution")
+  .append('svg')
+  .classed('stateDistribution',true)
+  .attr('width', 400)
+  .attr('height',300)
+  const height = 300;
+  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
+  const sumOfOpinions = getSumOfOpinions();
+  var x = d3.scaleLinear()
+    .domain([0, 30])         
+    .range([40, 380]); 
+  var y = d3.scaleLinear()
+    .domain([0,50])
+    .range([240,10])
+
+  const line1 = d3.line()
+      .x((d,i) => x(i))
+      .y(d => y(d[0]))
+  const line2 = d3.line()
+      .x((d,i) => x(i))
+      .y(d => y(d[1]))
+    svg.append('g')
+      .call(d3.axisBottom(x))
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+    svg.append('g')
+      .call(d3.axisLeft(y))
+      .attr('transform', `translate(${margin.left},0)`)
+  svg
+    .append('path')
+    .datum(sumOfOpinions)
+    .attr('fill','none')
+    .attr('stroke','red')
+    .attr('stroke-width',1.5)
+    .attr("d",line1)
+  svg
+    .append('path')
+    .datum(sumOfOpinions)
+    .attr('fill','none')
+    .attr('stroke','blue')
+    .attr('stroke-width',1.5)
+    .attr("d",line2)
 }
