@@ -38,9 +38,9 @@ body {
 @media only screen and (min-width: 0px) {
   body {
     grid-template-areas:
-      "nav header"
-      "nav main"
-      "nav control";
+      "nav header plotBar"
+      "nav main plotBar"
+      "nav control plotBar";
     grid-template-columns: 100px 1fr auto;
     grid-template-rows: 0 1fr;
   }
@@ -187,15 +187,16 @@ div.button:hover > div {
   visibility: visible;
 }
 #plotBar{
-  grid-area: main;
-  position: absolute;
-  right:0;
+  grid-area: plotBar;
   flex-direction: column;
-  width: 400px;
+  width: 100px;
+  background-color: gray;
+  opacity: 1;
 }
 .plotContainer{
-  width: 400px;
-  height: 300px;
+  width: 100px;
+  height: 100px;
+  opacity: 0;
 }
 #control {
   grid-area: control;

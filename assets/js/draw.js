@@ -69,9 +69,13 @@ export function drawPlotBar() {
     div.removeChild(div.lastChild);
   }
   for (const plot in plots) {
+    const plotButton = document.createElement("button");
+    plotButton.classList.add('plotButton')
+    plotButton.addEventListener('click', plots[plot])
     const plotContainer = document.createElement("div");
     plotContainer.id = plot;
     plotContainer.classList.add("plotContainer");
+    div.appendChild(plotButton)
     div.appendChild(plotContainer);
   }
 }
