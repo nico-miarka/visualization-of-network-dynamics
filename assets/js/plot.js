@@ -8,7 +8,8 @@ export const plots = {
 };
 function toggleProtocol(key) {
   return () => {
-    document.getElementById(key).classList.toggle("show");
+    document.getElementById(key).classList.toggle("showPlot");
+    document.getElementById('plotBar').classList.toggle("showPlot");
     console.log('poof')
   };
 }

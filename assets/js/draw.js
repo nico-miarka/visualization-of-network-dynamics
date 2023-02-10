@@ -70,24 +70,23 @@ export function drawPlotBar() {
   }
   for (const plot in plots) {
     const plotButton = document.createElement("button");
-    plotButton.classList.add('plotButton')
-    plotButton.addEventListener('click', plots[plot])
-    const plotContainer = document.createElement("div");
-    plotContainer.id = plot;
-    plotContainer.classList.add("plotContainer");
+    plotButton.id = plot;
+    plotButton.classList.add('plotButton', 'plotContainer')
+    plotButton.addEventListener('click', plots[plot].onClick)
     div.appendChild(plotButton)
-    div.appendChild(plotContainer);
   }
 }
 //TODO when protocol changes, reset the graph
 export function drawStateDistribution(){
-  const height = 300;
   const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
+  const parent = d3.select("#stateDistribution")
+  const width = parent.node().offsetWidth;
+  const height = parent.node().offsetHeight;
   const svg = d3.select("#stateDistribution")
   .append('svg')
   .classed('stateDistribution',true)
-  .attr('width', 400)
-  .attr('height',300)
+  .attr('width', width)
+  .attr('height',height)
   const sumOfOpinions = getSumOfOpinions();
   var x = d3.scaleLinear()
     .domain([0, 30])         
@@ -123,14 +122,16 @@ export function drawStateDistribution(){
     .attr("d",line2)
 }
 export function updateStateDistribution(){
-  d3.select('svg').remove()
+  d3.select('.stateDistribution').remove()
+  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
+  const parent = d3.select("#stateDistribution")
+  const width = parent.node().offsetWidth;
+  const height = parent.node().offsetHeight;
   const svg = d3.select("#stateDistribution")
   .append('svg')
   .classed('stateDistribution',true)
-  .attr('width', 400)
-  .attr('height',300)
-  const height = 300;
-  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
+  .attr('width', width)
+  .attr('height',height)
   const sumOfOpinions = getSumOfOpinions();
   var x = d3.scaleLinear()
     .domain([0, 30])         
