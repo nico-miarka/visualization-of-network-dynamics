@@ -4,14 +4,17 @@ import { getChanges } from "./dynamicChanges.js";
 export const plots = {
   stateDistribution: {
     onClick: toggleProtocol("stateDistribution"),
+  },
+  donut: {
+    onClick: toggleProtocol("donut"),
   }
+  
+
 };
 function toggleProtocol(key) {
-  return () => {
+  return async () => {
     document.getElementById(key).classList.toggle("showPlot");
-    document.getElementById('plotBar').classList.toggle("showPlot");
-    console.log('poof')
-  };
+};
 }
 
 export function sumOpinions(){

@@ -7,7 +7,6 @@ import {
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
-
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {
@@ -78,10 +77,12 @@ export function drawPlotBar() {
 }
 //TODO when protocol changes, reset the graph
 export function drawStateDistribution(){
-  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;
+  const margin = ({ top: (1/15)*height, right: (1/20)*width, bottom: (1/5)*height, left: (1/10)*width });
+
+  console.log(width,height);
   const svg = d3.select("#stateDistribution")
   .append('svg')
   .classed('stateDistribution',true)
@@ -121,12 +122,13 @@ export function drawStateDistribution(){
     .attr('stroke-width',1.5)
     .attr("d",line2)
 }
-export function updateStateDistribution(){
+export async function updateStateDistribution(){
   d3.select('.stateDistribution').remove()
-  const margin = ({ top: 20, right: 20, bottom: 60, left: 40 });
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;
+  const margin = ({ top: (1/15)*height, right: (1/20)*width, bottom: (1/5)*height, left: (1/10)*width });
+  console.log(height, width)
   const svg = d3.select("#stateDistribution")
   .append('svg')
   .classed('stateDistribution',true)
@@ -135,10 +137,10 @@ export function updateStateDistribution(){
   const sumOfOpinions = getSumOfOpinions();
   var x = d3.scaleLinear()
     .domain([0, 30])         
-    .range([40, 380]); 
+    .range([0.1*width, 0.95*width]); 
   var y = d3.scaleLinear()
     .domain([0,50])
-    .range([240,10])
+    .range([0.8*height,(1/30)*height])
 
   const line1 = d3.line()
       .x((d,i) => x(i))

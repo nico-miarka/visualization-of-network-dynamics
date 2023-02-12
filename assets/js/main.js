@@ -11,7 +11,7 @@ let draggingNode;
 let hoveringNode;
 
 /** Recenter the simulation (e.g. after window resize event) */
-function recenter() {
+export function recenter() {
   const w = document.getElementById("main").offsetWidth;
   const h = document.getElementById("main").offsetHeight;
   simulation
@@ -197,6 +197,8 @@ function main() {
     );
   document.addEventListener("keydown", shortcuts);
   window.addEventListener("hashchange", () => reload());
+  const mainWindow = document.getElementById("main");
+  mainWindow.addEventListener('resize', recenter);
   window.onresize = recenter;
   drawNav();
   reload();

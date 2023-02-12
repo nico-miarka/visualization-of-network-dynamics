@@ -49,6 +49,7 @@ body {
 main {
   grid-area: main;
   overflow: hidden;
+  background-color: green;
 }
 
 nav,
@@ -186,27 +187,37 @@ div.button:hover > div {
 }
 #plotBar{
   grid-area: plotBar;
+  display: flex;
   flex-direction: column;
-  width: 100px;
-  background-color: gray;
-  opacity: 1;
+  align-items: flex-end;
 }
-TODO fix this shit
 .plotContainer{
   width: 100px;
   height: 100px;
-  opacity: 1;
-  transform: translate(0, 0);
-  transition: width 0.3s , height 0.3s;
+  transition: width 0.3s, height 0.3s, background-color 0.3s;
+  transform-origin: top right;
+  background-color: red;
+}
+.plotContainer.showPlot{
+  width:100%;
+  height:300px;
+  background-color: white;
 }
 #plotBar .showPlot{
-  width:400%;
-  transform: translate(-200%,200);
-  height:300px;
+  width:400px;
+  height: 300px;
 }
 .plotContainer svg{
   width:100%;
   height:100%;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.plotContainer.showPlot svg{
+  width:100%;
+  height:100%;
+  opacity: 1;
 }
 #control {
   grid-area: control;
