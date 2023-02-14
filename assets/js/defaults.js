@@ -23,5 +23,6 @@ export const state = {
   majority: 2,
   numberOfColors: 2,
   sync: "sync",
-  time: 0,
+  step: 0,
+  time:500
 };

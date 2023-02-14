@@ -90,7 +90,7 @@ async function reload(forceResample = false) {
     const graph = randomGraph(state.n, state.m, state.seed);
     drawControlPanel();
     setChanges([]);
-    state.time = 0;
+    state.step = 0;
     setGraph(graph)
     drawGraph(state, graph);
     drawPlotBar();
@@ -113,7 +113,7 @@ async function reload(forceResample = false) {
     const graph = randomGraph(state.n, state.m, state.seed);
     setSumOfOpinions([sumOpinions()]);
     setChanges([]);
-    state.time = 0;
+    state.step = 0;
     setGraph(graph);
     drawGraph(state, graph);
     drawPlotBar();
@@ -197,9 +197,9 @@ function main() {
     );
   document.addEventListener("keydown", shortcuts);
   window.addEventListener("hashchange", () => reload());
-  const mainWindow = document.getElementById("main");
-  mainWindow.addEventListener('resize', recenter);
   window.onresize = recenter;
+  const mainWindow = document.getElementById("plotBar");
+  new ResizeObserver(() => recenter()).observe(mainWindow);
   drawNav();
   reload();
 }

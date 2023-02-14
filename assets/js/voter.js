@@ -10,26 +10,26 @@ function pickNeighbor(graph,vertex,random){
 }
 
 function changeVoterOpinion(vertex,neighbor){
-    if (vertex.level !== neighbor.level){
-    updateChanges(vertex.name,vertex.level,neighbor.level)
+    updateChanges(vertex.name,vertex.level,neighbor.level, neighbor.name)
     vertex.level = neighbor.level
-    }
+
 }
 
 export async function changeVoterVertex (){
+    const state = getState()
     const graph = getGraph()
     var random = getProtocolRandom()
     var vertex = pickVertex(graph, random)
-    await sleep(1000)
+    await sleep(state.time)
     grayOutGraph()
     highlightVertex(vertex)
     var neighbor = pickNeighbor(graph,vertex, random)
-    await sleep(1000)
+    await sleep(state.time)
     highlightVertex(neighbor)
-    await sleep(1000)
+    await sleep(state.time)
     changeVoterOpinion(vertex,neighbor)
     drawVertexColor(vertex)
-    await sleep (1000)
+    await sleep(state.time)
     resetHighlightGraph()
 }
 

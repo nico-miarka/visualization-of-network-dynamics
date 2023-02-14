@@ -3,6 +3,7 @@ import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
 import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
 import { updateStateDistribution } from "./draw.js";
+import { backward,changesForward } from "./plot.js";
 let running = false;
 let intervalId;
 
@@ -59,7 +60,6 @@ export const topics = {
 const filler = () => {
   console.log("poof");
 };
-
 function startStop() {
   return async () => {
     const state = getState();
@@ -77,8 +77,9 @@ export function forwards() {
   return async() => {
     const state = getState();
     changes = getChanges()
-    changes[state.time] = {}
-    updateState({ time: ++state.time });
+    if (changes.length == state.step){
+    changes[state.step] = {}
+    updateState({ step: ++state.step });
     switch (state.protocol) {
       case "voter":
         await changeVoterVertex();
@@ -102,10 +103,16 @@ export function forwards() {
     changeOpinionSum();
     console.log(getSumOfOpinions());
     updateStateDistribution();
+  } else {
+    console.log('ok')
+    changesForward();
+    updateState({ step: ++state.step });
+  }
+
   };
 }
 export const protocolFunctions = {
-  backwards: filler,
+  backwards: backward,
   startStop: startStop,
   forward: forwards,
 };
@@ -178,10 +185,10 @@ export const icons = {
 
 var changes = []
 
-export function updateChanges(key,oldValue,newValue){
+export function updateChanges(key,oldValue,newValue, neighbor){
   const state = getState()
   const changes = getChanges()
-  changes[state.time-1][key] = [oldValue,newValue]
+  changes[state.step-1][key] = [oldValue,newValue, neighbor]
   setChanges(changes)
 }
 export function getChanges(){

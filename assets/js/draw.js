@@ -39,6 +39,8 @@ export function drawNav() {
   button.innerText = "sync";
   nav.appendChild(button);
 }
+
+
 /** TODO add forward backwards pause method + css */
 export function drawControlPanel() {
   const state = getState();
@@ -81,8 +83,6 @@ export function drawStateDistribution(){
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;
   const margin = ({ top: (1/15)*height, right: (1/20)*width, bottom: (1/5)*height, left: (1/10)*width });
-
-  console.log(width,height);
   const svg = d3.select("#stateDistribution")
   .append('svg')
   .classed('stateDistribution',true)

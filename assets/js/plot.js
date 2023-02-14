@@ -1,6 +1,7 @@
 import { getGraph } from "./graphUpdate.js";
-import { getState } from "./state.js";
+import { getState, updateState } from "./state.js";
 import { getChanges } from "./dynamicChanges.js";
+import { highlightVertex, grayOutGraph, resetHighlightGraph, drawVertexColor } from "./visuals.js";
 export const plots = {
   stateDistribution: {
     onClick: toggleProtocol("stateDistribution"),
@@ -44,13 +45,57 @@ export function changeOpinionSum(){
   const sumOfOpinions = getSumOfOpinions();
   const state = getState();
   const changes = getChanges();
-  sumOfOpinions[state.time] = Object.assign({}, sumOfOpinions[state.time-1])
-  for (const node in changes[state.time-1]){
-    const vertex = changes[state.time-1][node][0]
-    const neighbor = changes[state.time-1][node][1]
-    sumOfOpinions[state.time][vertex]--;
-    sumOfOpinions[state.time][neighbor]++;
+  sumOfOpinions[state.step] = Object.assign({}, sumOfOpinions[state.step-1])
+  for (const node in changes[state.step-1]){
+    const vertex = changes[state.step-1][node][0]
+    const neighbor = changes[state.step-1][node][1]
+    sumOfOpinions[state.step][vertex]--;
+    sumOfOpinions[state.step][neighbor]++;
   }
   
 }
+//TODO maybe add that the vertices get highlighted, even though there is no change in the time stamp
+export function backward(){
+  return async () => {
+  const state = getState();
+  console.log(state.step)
+  if (state.step > 0){
+    const changes = getChanges();
+    const graph = getGraph();
+    grayOutGraph()
+    for (const node in changes[state.step-1]){
+      const vertex = graph.vertices[node]
+      highlightVertex(vertex)
+      await sleep(state.time);
+      vertex.level = changes[state.step-1][node][0]
+      drawVertexColor(vertex)
+      await sleep(state.time);
 
+    }
+    updateState({ step: --state.step });
+    resetHighlightGraph()
+  }
+}}
+
+export async function changesForward(){
+    const state = getState();
+    const changes = getChanges();
+    const graph = getGraph();
+    grayOutGraph();
+    for (const node in changes[state.step]){
+      const vertex = graph.vertices[node]
+      const neighbor = graph.vertices[changes[state.step][node][2]]
+      highlightVertex(vertex)
+      await sleep(state.time)
+      highlightVertex(neighbor)
+      await sleep(state.time)
+      vertex.level = neighbor.level
+      drawVertexColor(vertex)
+      await sleep(state.time)
+
+    }
+    resetHighlightGraph();
+  }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

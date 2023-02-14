@@ -49,7 +49,6 @@ body {
 main {
   grid-area: main;
   overflow: hidden;
-  background-color: green;
 }
 
 nav,
