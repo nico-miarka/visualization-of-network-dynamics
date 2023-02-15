@@ -3,9 +3,9 @@ import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
 import { getVertexColor } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar,drawStateDistribution} from "./draw.js";
+import { drawNav, drawControlPanel, drawPlotBar,drawStateDistribution, updateStateDistribution} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
-import { sumOpinions, setSumOfOpinions} from "./plot.js";
+import { sumOpinions, setSumOfOpinions, sumOfOpinions} from "./plot.js";
 let simulation;
 let draggingNode;
 let hoveringNode;
@@ -88,13 +88,13 @@ async function reload(forceResample = false) {
   }
   if (changedFields.has("protocol")) {
     const graph = randomGraph(state.n, state.m, state.seed);
+    setSumOfOpinions([sumOpinions()]);
     drawControlPanel();
     setChanges([]);
     state.step = 0;
     setGraph(graph)
     drawGraph(state, graph);
-    drawPlotBar();
-    drawStateDistribution();
+    updateStateDistribution();
     
   }
   if (changedFields.has("protocolSeed")){
@@ -116,8 +116,8 @@ async function reload(forceResample = false) {
     state.step = 0;
     setGraph(graph);
     drawGraph(state, graph);
-    drawPlotBar();
-    drawStateDistribution();
+    updateStateDistribution();
+
 
     /** TODO add button to do one iteration */
   } else {
@@ -200,6 +200,7 @@ function main() {
   window.onresize = recenter;
   const mainWindow = document.getElementById("plotBar");
   new ResizeObserver(() => recenter()).observe(mainWindow);
+  drawPlotBar();
   drawNav();
   reload();
 }

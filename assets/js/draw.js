@@ -73,6 +73,7 @@ export function drawPlotBar() {
     const plotButton = document.createElement("button");
     plotButton.id = plot;
     plotButton.classList.add('plotButton', 'plotContainer')
+    new ResizeObserver(() => updateStateDistribution()).observe(plotButton);
     plotButton.addEventListener('click', plots[plot].onClick)
     div.appendChild(plotButton)
   }
