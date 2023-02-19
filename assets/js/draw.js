@@ -80,6 +80,8 @@ export function drawPlotBar() {
 }
 //TODO when protocol changes, reset the graph
 export function drawStateDistribution(){
+  const state = getState();
+  const color = ['red','blue','green','yellow']
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;
@@ -102,29 +104,23 @@ export function drawStateDistribution(){
     svg.append('g')
       .call(d3.axisLeft(y))
       .attr('transform', `translate(${margin.left},0)`)
-  const line1 = d3.line()
-      .x((d,i) => x(i))
-      .y(d => y(d[0]))
-  const line2 = d3.line()
-      .x((d,i) => x(i))
-      .y(d => y(d[1]))
+for (let i=0;i<state.numberOfColors;i++){
+  const line = d3.line()
+      .x((d,j) => x(j))
+      .y(d => y(d[i]))
   svg
     .append('path')
     .datum(sumOfOpinions)
     .attr('fill','none')
-    .attr('stroke','red')
+    .attr('stroke',color[i])
     .attr('stroke-width',1.5)
-    .attr("d",line1)
-  svg
-    .append('path')
-    .datum(sumOfOpinions)
-    .attr('fill','none')
-    .attr('stroke','blue')
-    .attr('stroke-width',1.5)
-    .attr("d",line2)
+    .attr("d",line)
+}
 }
 export async function updateStateDistribution(){
   d3.select('.stateDistribution').remove()
+  const color = ['red','blue','green','yellow']
+  const state = getState();
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;
@@ -142,31 +138,22 @@ export async function updateStateDistribution(){
   var y = d3.scaleLinear()
     .domain([0,50])
     .range([0.8*height,(1/30)*height])
-
-  const line1 = d3.line()
-      .x((d,i) => x(i))
-      .y(d => y(d[0]))
-  const line2 = d3.line()
-      .x((d,i) => x(i))
-      .y(d => y(d[1]))
     svg.append('g')
       .call(d3.axisBottom(x))
       .attr('transform', `translate(0,${height - margin.bottom})`)
     svg.append('g')
       .call(d3.axisLeft(y))
       .attr('transform', `translate(${margin.left},0)`)
-  svg
-    .append('path')
-    .datum(sumOfOpinions)
-    .attr('fill','none')
-    .attr('stroke','red')
-    .attr('stroke-width',1.5)
-    .attr("d",line1)
-  svg
-    .append('path')
-    .datum(sumOfOpinions)
-    .attr('fill','none')
-    .attr('stroke','blue')
-    .attr('stroke-width',1.5)
-    .attr("d",line2)
+      for (let i=0;i<state.numberOfColors;i++){
+        const line = d3.line()
+            .x((d,j) => x(j))
+            .y(d => y(d[i]))
+        svg
+          .append('path')
+          .datum(sumOfOpinions)
+          .attr('fill','none')
+          .attr('stroke',color[i])
+          .attr('stroke-width',1.5)
+          .attr("d",line)
+      }
 }

@@ -1,6 +1,4 @@
 import { getState, updateState } from "./state.js";
-import { changeVertex } from "./opinion.js";
-import { update } from "./lib/hash.js";
 /** return default graph with n vertices
  * @param {Number} n vertices
  * @return {Graph}
@@ -12,9 +10,11 @@ function create_graph(n) {
     ? new Math.seedrandom(state.colorSeed)
     : Math.random;
   var numberOfColors = 2;
-  if (state.protocol === "majority" || state.protocol == "rumor") {
+  if (state.protocol === "majority" || state.protocol == "voter") {
+    console.log('oki')
     numberOfColors = state.numberOfColors;
   }
+  console.log(numberOfColors)
   for (let i = 0; i < n; i++) {
     graph.vertices[i] = {
       name: i,

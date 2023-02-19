@@ -21,7 +21,7 @@ export const state = {
     "gray",
   ],
   majority: 2,
-  numberOfColors: 2,
+  numberOfColors: 3,
   sync: "sync",
   step: 0,
   time:500

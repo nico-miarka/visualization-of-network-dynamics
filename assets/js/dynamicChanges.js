@@ -1,12 +1,10 @@
 import { getState, updateState } from "./state.js";
-import { changeVertex } from "./opinion.js";
 import { changeVoterVertex } from "./voter.js";
 import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
 import { updateStateDistribution } from "./draw.js";
 import { backward,changesForward } from "./plot.js";
 let running = false;
 let intervalId;
-
 function toggleProtocol(key) {
   return () => {
     document.getElementById(key).classList.toggle("show");
@@ -80,31 +78,10 @@ export function forwards() {
     if (changes.length == state.step){
     changes[state.step] = {}
     updateState({ step: ++state.step });
-    switch (state.protocol) {
-      case "voter":
-        await changeVoterVertex();
-        break;
-      case "majority":
-        await changeVertex();
-        break;
-      case "more":
-        filler();
-        break;
-      case "SIRmodel":
-        filler();
-        break;
-      case "regular":
-        filler();
-        break;
-      case "glauber":
-        filler();
-        break;
-    }
+    await changeVoterVertex();
     changeOpinionSum();
-    console.log(getSumOfOpinions());
     updateStateDistribution();
   } else {
-    console.log('ok')
     changesForward();
     updateState({ step: ++state.step });
   }
@@ -118,53 +95,24 @@ export const protocolFunctions = {
 };
 export const protocols = {
   more: {
-    functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: filler,
-    },
     onClick: switchToMajority,
   },
   SIRmodel: {
-    functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: filler,
-    },
     onClick: switchToVoter,
   },
   regular: {
-    functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: filler,
-    },
     onClick: switchToRumor,
   },
   glauber: {
-    functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: filler,
-    },
     onClick: switchToVoter,
   },
   filler: {
-    functions: {
-      backwards: filler,
-      startStop: filler,
-      forward: filler,
-    },
     onClick: switchToVoter,
   },
   voter: {
-    functions: {
-    },
     onClick: switchToVoter,
   },
   majority: {
-    functions: {
-    },
     onClick: switchToMajority,
   },
   graph: {

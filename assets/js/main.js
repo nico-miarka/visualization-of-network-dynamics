@@ -87,6 +87,8 @@ async function reload(forceResample = false) {
     state.colorSeed = Math.random().toString(36).substr(2, 5);
   }
   if (changedFields.has("protocol")) {
+    //TODO when switching protocols, the seed doesnt reset. So if i execute once on voter, then once majority, go back to voter, a different node gets picked.
+    setProtocolRandom(state.protocolSeed)
     const graph = randomGraph(state.n, state.m, state.seed);
     setSumOfOpinions([sumOpinions()]);
     drawControlPanel();
@@ -109,7 +111,7 @@ async function reload(forceResample = false) {
     changedFields.has("colorSeed") ||
     changedFields.has("protocolSeed")
   ) {
-
+    setProtocolRandom(state.protocolSeed)
     const graph = randomGraph(state.n, state.m, state.seed);
     setSumOfOpinions([sumOpinions()]);
     setChanges([]);
