@@ -40,7 +40,7 @@ export function getSumOfOpinions(){
 export function setSumOfOpinions(newSum){
   sumOfOpinions = newSum;
 }
-
+//TODO doesnt work for 3 opinions. even though blue should stay the same it increments.
 export function changeOpinionSum(){
   const sumOfOpinions = getSumOfOpinions();
   const state = getState();

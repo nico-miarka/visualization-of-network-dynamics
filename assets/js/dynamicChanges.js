@@ -55,9 +55,6 @@ export const topics = {
     onClick: toggleReload,
   },
 };
-const filler = () => {
-  console.log("poof");
-};
 function startStop() {
   return async () => {
     const state = getState();
@@ -66,7 +63,7 @@ function startStop() {
       clearInterval(intervalId);
       running = false;
     } else {
-      intervalId = setInterval(forwardFunction, 4500);
+      intervalId = setInterval(forwardFunction, state.time*4);
       running = true;
     }
   };

@@ -11,10 +11,19 @@ function create_graph(n) {
     : Math.random;
   var numberOfColors = 2;
   if (state.protocol === "majority" || state.protocol == "voter") {
-    console.log('oki')
     numberOfColors = state.numberOfColors;
   }
-  console.log(numberOfColors)
+  if (state.protocol === "rumor"){
+    console.log()
+    for (let i = 0; i < n; i++) {
+      graph.vertices[i] = {
+        name: i,
+        neighbors: [],
+        level: 2,
+      };
+    }
+    graph.vertices[Math.floor(random()*graph.vertices.length)].level = 0
+  } else {
   for (let i = 0; i < n; i++) {
     graph.vertices[i] = {
       name: i,
@@ -22,6 +31,7 @@ function create_graph(n) {
       level: Math.floor(random() * (numberOfColors - 1) + 0.5),
     };
   }
+}
   return graph;
 }
 

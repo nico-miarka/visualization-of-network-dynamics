@@ -99,3 +99,6 @@ export function resetHighlightGraph () {
 export function drawVertexColor(vertex){
   d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name}).attr('fill', getVertexColor)
 }
+export function drawVerticesColor(vertices){
+  d3.selectAll('circle.graphNode').filter(function(d){return vertices.includes(d)}).attr('fill', getVertexColor)
+}
