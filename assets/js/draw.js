@@ -7,6 +7,7 @@ import {
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
+import { resetBlendout } from "./visuals.js";
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {
@@ -77,6 +78,13 @@ export function drawPlotBar() {
     plotButton.addEventListener('click', plots[plot].onClick)
     div.appendChild(plotButton)
   }
+}
+export function drawColorSelection(node){
+  const escapeButton = document.createElement("button");
+  escapeButton.classList.add('escapeButton')
+  escapeButton.addEventListener('click', resetBlendout)
+  node.node().appendChild(escapeButton)
+
 }
 //TODO when protocol changes, reset the graph
 export function drawStateDistribution(){

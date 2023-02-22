@@ -2,10 +2,10 @@
 import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
-import { getVertexColor } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar,drawStateDistribution, updateStateDistribution} from "./draw.js";
+import { getVertexColor, grayOutGraph, highlightVertex,blendoutGraph } from "./visuals.js";
+import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawColorSelection} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
-import { sumOpinions, setSumOfOpinions, sumOfOpinions} from "./plot.js";
+import { sumOpinions, setSumOfOpinions} from "./plot.js";
 let simulation;
 let draggingNode;
 let hoveringNode;
@@ -39,7 +39,7 @@ function drawGraph(state, graph) {
     .append("line")
     .attr("class", "graphEdge");
 
-  svg
+    svg
     .selectAll("circle.graphNode")
     .data(graph.vertices)
     .enter()
@@ -64,7 +64,12 @@ function drawGraph(state, graph) {
           if (!event.active) simulation.alphaTarget(0);
           [v.fx, v.fy] = [null, null];
         })
-    );
+    )
+    .on("click", (event, v) => {
+      if (onNodeClick) {
+        onNodeClick(v);
+      }
+    });
   recenter();
 
   d3.select("main").classed("loading", false);
@@ -74,7 +79,11 @@ function drawGraph(state, graph) {
     return getVertexColor(vertex);
   });
 }
-
+function onNodeClick(node){
+  blendoutGraph();
+  highlightVertex(node)
+  drawColorSelection(node)
+}
 /** Sample and draw new graph
  */
 async function reload(forceResample = false) {
@@ -87,7 +96,7 @@ async function reload(forceResample = false) {
     state.colorSeed = Math.random().toString(36).substr(2, 5);
   }
   if (changedFields.has("protocol")) {
-    //TODO when switching protocols, the seed doesnt reset. So if i execute once on voter, then once majority, go back to voter, a different node gets picked.
+    //TODO on protocol switch, the state distribution of the OLD protocol gets shown and updated, not the new one
     setProtocolRandom(state.protocolSeed)
     const graph = randomGraph(state.n, state.m, state.seed);
     setSumOfOpinions([sumOpinions()]);

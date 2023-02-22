@@ -281,12 +281,18 @@ circle.highlight {
 circle.nonhighlight {
   filter: grayscale(100%);
 }
-
+circle.blendout{
+  filter: blur(15px);
+  transition: filter 0.2s;
+}
 line {
   stroke: #000;
   stroke-width: 2px;
 }
-
+line.blendout{
+  filter:blur(15px);
+  transition: filter 0.2s;
+}
 line.nonhighlight {
   stroke-opacity: 0.25;
 }

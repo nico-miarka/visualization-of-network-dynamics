@@ -102,3 +102,11 @@ export function drawVertexColor(vertex){
 export function drawVerticesColor(vertices){
   d3.selectAll('circle.graphNode').filter(function(d){return vertices.includes(d)}).attr('fill', getVertexColor)
 }
+export function blendoutGraph(){
+  d3.selectAll('circle.graphNode').attr('class','graphNode blendout')
+  d3.selectAll('line.graphEdge').attr('class','graphEdge blendout')
+}
+export function resetBlendout(){
+  d3.selectAll('circle.graphNode').classed('highlight', false).classed('blendout', false)
+  d3.selectAll('line.graphEdge').classed('blendout', false)
+}
