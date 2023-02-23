@@ -7,7 +7,7 @@ import {
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
-import { resetBlendout } from "./visuals.js";
+import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {
@@ -79,12 +79,57 @@ export function drawPlotBar() {
     div.appendChild(plotButton)
   }
 }
-export function drawColorSelection(node){
-  const escapeButton = document.createElement("button");
-  escapeButton.classList.add('escapeButton')
-  escapeButton.addEventListener('click', resetBlendout)
-  node.node().appendChild(escapeButton)
-
+export function drawColorSelection(){
+  const state = getState();
+  const node = d3.selectAll('.graphNode.highlight')
+  const parentNode = node.node().parentNode;
+  var radius = 50;
+  var angleIncrement = Math.PI / (state.numberOfColors - 1);
+  console.log(node.attr('cx'))
+  var nodex = parseFloat(node.attr("cx"));
+  var nodey = parseFloat(node.attr("cy"));
+  d3.selectAll('.orbitButton').remove();
+  d3.select(parentNode).append("circle")
+  .attr("class", "orbitButton highlight")
+  .attr("cx", nodex-radius)
+  .attr("cy", nodey)
+  .attr("r", 10)
+  .text('X')
+  .style("fill", 'white')
+  .on("click", orbitButtonClick)
+for (var i = 0; i < state.numberOfColors; i++) {
+  //TODO finish the color picker part. maybe change implementation to be able to click multiple nodes to highlight, then rightclick to change color of all highlighted
+  //or fixate their opinions or do something else... this is a better approach probably
+  var angle = -Math.PI/4 + i * angleIncrement;
+  var x = nodex + radius * Math.cos(angle);
+  var y = nodey + radius * Math.sin(angle);
+  
+  d3.select(parentNode).append("circle")
+    .attr("class", "orbitButton highlight")
+    .attr("cx", x)
+    .attr("cy", y)
+    .attr("r", 10)
+    .style("fill", state.color[i])
+    .on("click", ()=>{console.log('poof')})
+}
+}
+function orbitButtonClick() {
+  console.log("Orbit button clicked");
+  resetBlendout();
+  d3.selectAll('.orbitButton').remove()
+  d3.selectAll('.graphNode')
+  .on('click', (event, v) => {
+    if (onNodeClick) {
+      onNodeClick(v);
+    }
+  });
+}
+function onNodeClick(node){
+  d3.selectAll('.graphNode')
+  .on('click', null);
+  blendoutGraph();
+  highlightVertex(node);
+  drawColorSelection();
 }
 //TODO when protocol changes, reset the graph
 export function drawStateDistribution(){

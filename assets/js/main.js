@@ -66,7 +66,7 @@ function drawGraph(state, graph) {
         })
     )
     .on("click", (event, v) => {
-      if (onNodeClick) {
+      if (onNodeClick ) {
         onNodeClick(v);
       }
     });
@@ -80,9 +80,11 @@ function drawGraph(state, graph) {
   });
 }
 function onNodeClick(node){
+  d3.selectAll('.graphNode')
+  .on('click', null);
   blendoutGraph();
-  highlightVertex(node)
-  drawColorSelection(node)
+  highlightVertex(node);
+  drawColorSelection();
 }
 /** Sample and draw new graph
  */
