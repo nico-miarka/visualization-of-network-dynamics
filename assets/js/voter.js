@@ -5,7 +5,7 @@ import { updateChanges } from './dynamicChanges.js'
 import { getState } from './state.js'
 
 function changeVoterOpinion(vertex,neighbors){
-    updateChanges(vertex.name,vertex.level,neighbors[0].level, neighbors)
+    updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
     //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
     vertex[0].level = neighbors[0].level
 
@@ -48,11 +48,54 @@ export async function changeVoterVertex (){
             await sleep(state.time)
             changeSpreader(neighbors)
             drawVerticesColor(neighbors)
+        case 'glauber':
+            var vertex = pickVertex(graph,random,1)
+            highlightVertices(vertex)
+            var neighbors = pickSpreadersNeigbors(graph,vertex)
+            console.log(neighbors)
+            await sleep(state.time)
+            highlightVertices(neighbors)
+            await sleep(state.time)
+            glauberChange(vertex, neighbors, random)
+            drawVerticesColor(vertex);
+
 
             
     }
     await sleep(state.time)
     resetHighlightGraph()
+}
+function glauberChange(vertex, neighbors, random){
+    const state = getState();
+    const temperature = state.temperature
+    let vertexSpin
+    if (vertex[0].level == 0){
+        vertexSpin = 1
+    } else {
+        vertexSpin = -1
+    }
+    var sum = vertexSpin
+    for (const node of neighbors){
+        console.log(node)
+        if (node.level == 0){
+            sum+=1
+        } else {
+            sum -=1
+        }
+    }
+    const changeInEnergy = 2*vertexSpin*sum
+    const flipChance = (Math.E**((-changeInEnergy)/temperature))/(1+ Math.E**((-changeInEnergy)/temperature))
+    const randomNum = random()
+    console.log(flipChance)
+    console.log(randomNum)
+    if (randomNum <= flipChance){
+        console.log('success')
+        changeGlauberOpinion(vertex, neighbors);
+    } 
+}
+function changeGlauberOpinion(vertex,neighbors){
+    updateChanges(vertex[0].name, vertex[0].level, (vertex[0].level+1)%2, neighbors)
+    vertex[0].level = (vertex[0].level+1)%2
 }
 function pickSpreaders(graph){
     const spreader = [];
@@ -67,13 +110,11 @@ function pickSpreadersNeigbors(graph,vertices){
     const neighbors = [];
     for (const vertex in vertices){
         for (const i of vertices[vertex].neighbors){
-            console.log(i)
             if (!neighbors.includes(graph.vertices[i])){
                 neighbors.push(graph.vertices[i])
             }
         }
     }
-    console.log(neighbors)
     return neighbors
 
 }

@@ -197,6 +197,10 @@ div.button:hover > div {
   transform-origin: top right;
   background-color: red;
 }
+.plotContainer:not(.showPlot) {
+  height: 100px;
+  width:100px;
+}
 .plotContainer.showPlot{
   width:100%;
   height:300px;

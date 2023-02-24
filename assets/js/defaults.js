@@ -24,5 +24,6 @@ export const state = {
   numberOfColors: 3,
   sync: "sync",
   step: 0,
-  time:500
+  time:500,
+  temperature:5,
 };

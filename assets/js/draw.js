@@ -3,11 +3,13 @@ import {
   protocols,
   icons,
   protocolFunctions,
+  getChanges,
 } from "./dynamicChanges.js";
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
 import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
+import { getGraph } from "./graphUpdate.js";
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {
@@ -76,8 +78,38 @@ export function drawPlotBar() {
     plotButton.classList.add('plotButton', 'plotContainer')
     new ResizeObserver(() => updateStateDistribution()).observe(plotButton);
     plotButton.addEventListener('click', plots[plot].onClick)
+    addResizablity(plotButton);
     div.appendChild(plotButton)
   }
+}
+function addResizablity(div){
+  var isResizing = false;
+
+  div.addEventListener("mousemove", function(e) {
+    if (e.offsetX < 5) {
+      div.style.cursor = "col-resize";
+    } else {
+      div.style.cursor = "auto";
+    }
+  });
+  
+  div.addEventListener("mousedown", function(e) {
+    if (e.offsetX < 5) {
+      isResizing = true;
+      div.style.cursor = "col-resize";
+    }
+  });
+  
+  document.addEventListener("mousemove", function(e) {
+    if (isResizing) {
+      div.style.width = (div.offsetLeft - e.clientX + div.offsetWidth) + "px";
+    }
+  });
+  
+  document.addEventListener("mouseup", function(e) {
+    isResizing = false;
+    div.style.cursor = "auto";
+  });
 }
 export function drawColorSelection(){
   const state = getState();
@@ -131,9 +163,10 @@ function onNodeClick(node){
   highlightVertex(node);
   drawColorSelection();
 }
-//TODO when protocol changes, reset the graph
 export function drawStateDistribution(){
   const state = getState();
+  const graph = getGraph();
+  const changes = getChanges();
   const color = ['red','blue','green','yellow']
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
@@ -146,11 +179,11 @@ export function drawStateDistribution(){
   .attr('height',height)
   const sumOfOpinions = getSumOfOpinions();
   var x = d3.scaleLinear()
-    .domain([0, 30])         
-    .range([40, 380]); 
+    .domain([0, Math.max(30,changes.length)])         
+    .range([0.1*width, 0.95*width]); 
   var y = d3.scaleLinear()
-    .domain([0,50])
-    .range([240,10])
+    .domain([0, graph.vertices.length])
+    .range([0.8*height,(1/30)*height])
     svg.append('g')
       .call(d3.axisBottom(x))
       .attr('transform', `translate(0,${height - margin.bottom})`)
@@ -161,6 +194,7 @@ for (let i=0;i<state.numberOfColors;i++){
   const line = d3.line()
       .x((d,j) => x(j))
       .y(d => y(d[i]))
+      .curve(d3.curveCardinal)
   svg
     .append('path')
     .datum(sumOfOpinions)
@@ -172,41 +206,5 @@ for (let i=0;i<state.numberOfColors;i++){
 }
 export async function updateStateDistribution(){
   d3.select('.stateDistribution').remove()
-  const color = ['red','blue','green','yellow']
-  const state = getState();
-  const parent = d3.select("#stateDistribution")
-  const width = parent.node().offsetWidth;
-  const height = parent.node().offsetHeight;
-  const margin = ({ top: (1/15)*height, right: (1/20)*width, bottom: (1/5)*height, left: (1/10)*width });
-  console.log(height, width)
-  const svg = d3.select("#stateDistribution")
-  .append('svg')
-  .classed('stateDistribution',true)
-  .attr('width', width)
-  .attr('height',height)
-  const sumOfOpinions = getSumOfOpinions();
-  var x = d3.scaleLinear()
-    .domain([0, 30])         
-    .range([0.1*width, 0.95*width]); 
-  var y = d3.scaleLinear()
-    .domain([0,50])
-    .range([0.8*height,(1/30)*height])
-    svg.append('g')
-      .call(d3.axisBottom(x))
-      .attr('transform', `translate(0,${height - margin.bottom})`)
-    svg.append('g')
-      .call(d3.axisLeft(y))
-      .attr('transform', `translate(${margin.left},0)`)
-      for (let i=0;i<state.numberOfColors;i++){
-        const line = d3.line()
-            .x((d,j) => x(j))
-            .y(d => y(d[i]))
-        svg
-          .append('path')
-          .datum(sumOfOpinions)
-          .attr('fill','none')
-          .attr('stroke',color[i])
-          .attr('stroke-width',1.5)
-          .attr("d",line)
-      }
+  drawStateDistribution();
 }

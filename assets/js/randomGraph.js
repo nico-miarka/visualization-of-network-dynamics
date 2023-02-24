@@ -14,7 +14,6 @@ function create_graph(n) {
     numberOfColors = state.numberOfColors;
   }
   if (state.protocol === "rumor"){
-    console.log()
     for (let i = 0; i < n; i++) {
       graph.vertices[i] = {
         name: i,

@@ -124,6 +124,7 @@ async function reload(forceResample = false) {
   ) {
     setProtocolRandom(state.protocolSeed)
     const graph = randomGraph(state.n, state.m, state.seed);
+    console.log(graph)
     setSumOfOpinions([sumOpinions()]);
     setChanges([]);
     state.step = 0;

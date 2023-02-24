@@ -48,7 +48,9 @@ export function changeOpinionSum(){
   sumOfOpinions[state.step] = Object.assign({}, sumOfOpinions[state.step-1])
   for (const node in changes[state.step-1]){
     const vertex = changes[state.step-1][node][0]
+    console.log(changes)
     const neighbor = changes[state.step-1][node][1]
+    console.log(vertex, neighbor)
     sumOfOpinions[state.step][vertex]--;
     sumOfOpinions[state.step][neighbor]++;
   }
@@ -65,6 +67,7 @@ export function backward(){
     grayOutGraph()
     for (const node in changes[state.step-1]){
       const vertex = graph.vertices[node]
+      console.log(changes)
       highlightVertex(vertex)
       await sleep(state.time);
       vertex.level = changes[state.step-1][node][0]

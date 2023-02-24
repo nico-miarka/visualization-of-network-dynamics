@@ -25,6 +25,7 @@ function switchProtocol(key) {
 const switchToRumor = switchProtocol("rumor");
 const switchToVoter = switchProtocol("voter");
 const switchToMajority = switchProtocol("majority");
+const switchToGlauber = switchProtocol('glauber')
 
 export function reloadSeed(seed) {
   return () => {
@@ -101,7 +102,7 @@ export const protocols = {
     onClick: switchToRumor,
   },
   glauber: {
-    onClick: switchToVoter,
+    onClick: switchToGlauber,
   },
   filler: {
     onClick: switchToVoter,
