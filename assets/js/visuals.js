@@ -83,6 +83,11 @@ export function getVertexColor(vertex){
   return state.color[vertex.level]
 }
 
+export function toggleHighlight (vertex){
+  const node = d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name});
+  const isHighlighted = node.classed('highlight');
+  node.classed('highlight', !isHighlighted);
+}
 export function highlightVertex (vertex) {
   d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name}).attr('class','graphNode highlight')
 }

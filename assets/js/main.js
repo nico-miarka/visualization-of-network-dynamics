@@ -2,7 +2,7 @@
 import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
-import { getVertexColor, grayOutGraph, highlightVertex,blendoutGraph } from "./visuals.js";
+import { getVertexColor, grayOutGraph, highlightVertex,blendoutGraph,toggleHighlight } from "./visuals.js";
 import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawColorSelection} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
 import { sumOpinions, setSumOfOpinions} from "./plot.js";
@@ -66,10 +66,15 @@ function drawGraph(state, graph) {
         })
     )
     .on("click", (event, v) => {
-      if (onNodeClick ) {
+      if (onNodeClick) {
         onNodeClick(v);
       }
+    })
+    .on('contextmenu', (event)=>{
+      event.preventDefault();
+      console.log("Custom right-click behavior triggered!");
     });
+    
   recenter();
 
   d3.select("main").classed("loading", false);
@@ -80,11 +85,7 @@ function drawGraph(state, graph) {
   });
 }
 function onNodeClick(node){
-  d3.selectAll('.graphNode')
-  .on('click', null);
-  blendoutGraph();
-  highlightVertex(node);
-  drawColorSelection();
+  toggleHighlight(node)
 }
 /** Sample and draw new graph
  */
