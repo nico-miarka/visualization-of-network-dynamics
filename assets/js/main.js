@@ -3,7 +3,7 @@ import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
 import { getVertexColor, grayOutGraph, highlightVertex,blendoutGraph,toggleHighlight } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawColorSelection} from "./draw.js";
+import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawContextMenu} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
 import { sumOpinions, setSumOfOpinions} from "./plot.js";
 let simulation;
@@ -72,7 +72,7 @@ function drawGraph(state, graph) {
     })
     .on('contextmenu', (event)=>{
       event.preventDefault();
-      console.log("Custom right-click behavior triggered!");
+      drawContextMenu(event);
     });
     
   recenter();

@@ -10,6 +10,7 @@ import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
 import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
 import { getGraph } from "./graphUpdate.js";
+import { contextFunctions } from "./contextFunctions.js";
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {
@@ -207,4 +208,13 @@ for (let i=0;i<state.numberOfColors;i++){
 export async function updateStateDistribution(){
   d3.select('.stateDistribution').remove()
   drawStateDistribution();
+}
+export function drawContextMenu(event){
+  const x = event.pageX;
+  const y = event.pageY;
+  const contextMenu = document.createElement("div");
+  contextMenu.classList.add("context-menu");
+  for (const method in contextFunctions){
+    
+  }
 }
