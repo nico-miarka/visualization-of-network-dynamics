@@ -98,6 +98,7 @@ export function grayOutGraph(){
   d3.selectAll('circle.graphNode').attr('class','graphNode nonhighlight')
 }
 export function resetHighlightGraph () {
+  console.log('test')
   d3.selectAll('circle.graphNode').classed('highlight', false).classed('nonhighlight', false)
 }
 

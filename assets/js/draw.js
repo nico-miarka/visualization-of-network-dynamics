@@ -215,6 +215,23 @@ export function drawContextMenu(event){
   const contextMenu = document.createElement("div");
   contextMenu.classList.add("context-menu");
   for (const method in contextFunctions){
-    
+    const item = document.createElement("div");
+    item.innerText = contextFunctions[method].text;
+    item.addEventListener("click", contextFunctions[method].onClick)
+    contextMenu.appendChild(item);
   }
+  contextMenu.style.position = "absolute";
+  contextMenu.style.left = `${x}px`;
+  contextMenu.style.top = `${y}px`;
+  document.body.appendChild(contextMenu);
+  const closeContextMenu = function(event) {
+      contextMenu.remove();
+      document.removeEventListener("click", closeContextMenu);
+      document.removeEventListener("mousedown", closeContextMenu);
+      document.removeEventListener("touchstart", closeContextMenu);
+  };
+
+  document.addEventListener("click", closeContextMenu);
+  document.addEventListener("mousedown", closeContextMenu);
+  document.addEventListener("touchstart", closeContextMenu);
 }

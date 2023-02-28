@@ -1,6 +1,9 @@
+
+import { resetHighlightGraph } from "./visuals.js"
+
 export const contextFunctions = {
     resetAllHighlights:{
-        onClick: ()=>{},
+        onClick: resetHighlightGraph,
         text: "reset every highlight"
     },
     resetAllFixedNodes:{
@@ -11,10 +14,11 @@ export const contextFunctions = {
         onClick: ()=>{},
         text: "fix/unfix every highlighted node"
     },
-    toggleFix:{
+    changeColor:{
         onClick: ()=>{},
         text: "change color of highlighted nodes"
     },
 
     
 }
+
