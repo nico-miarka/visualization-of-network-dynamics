@@ -8,7 +8,6 @@ import { setChanges } from "./dynamicChanges.js";
 import { sumOpinions, setSumOfOpinions} from "./plot.js";
 let simulation;
 let draggingNode;
-let hoveringNode;
 
 /** Recenter the simulation (e.g. after window resize event) */
 export function recenter() {
@@ -31,7 +30,11 @@ function drawGraph(state, graph) {
     .nodes(graph.vertices)
     .force("charge", d3.forceManyBody().strength(state.charge))
     .force("link", d3.forceLink(graph.edges).distance(50).strength(0.9));
-
+    d3.selectAll("circle.graphNode")
+    .on("classChange", () => {
+    console.log('test')
+    simulation.force("fixed", d3.forceManyBody().strength(0.05));
+    });
   svg
     .selectAll("line.graphEdge")
     .data(graph.edges)

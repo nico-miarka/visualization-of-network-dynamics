@@ -291,6 +291,10 @@ circle.blendout{
   filter: blur(15px);
   transition: filter 0.2s;
 }
+circle.fixed{
+  filter: brightness(65%);
+
+}
 line {
   stroke: #000;
   stroke-width: 2px;

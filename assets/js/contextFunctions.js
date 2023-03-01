@@ -1,18 +1,19 @@
 
+import { getGraph } from "./graphUpdate.js";
 import { resetHighlightGraph } from "./visuals.js"
 
 export const contextFunctions = {
     resetAllHighlights:{
-        onClick: resetHighlightGraph,
-        text: "reset every highlight"
+        onClick:  resetHighlightGraph,
+        text: "reset highlights"
     },
     resetAllFixedNodes:{
-        onClick: ()=>{},
-        text: "rest every fixed node"
+        onClick: resetAllFixedNodes,
+        text: "reset fixed nodes"
     },
     toggleFix:{
-        onClick: ()=>{},
-        text: "fix/unfix every highlighted node"
+        onClick: toggleFix,
+        text: "fix/unfix highlighted nodes"
     },
     changeColor:{
         onClick: ()=>{},
@@ -22,3 +23,29 @@ export const contextFunctions = {
     
 }
 
+function toggleFix(){
+    const highlightedNodes = d3.selectAll('circle.graphNode.highlight');
+    const highlightedNames = highlightedNodes.data().map(d => d.name);
+    const graph = getGraph();
+    for (const name of highlightedNames){
+        graph.vertices[name].fixed = !graph.vertices[name].fixed
+    }
+    highlightedNodes.classed('highlight', function(d) {
+        // use the current state of the "nonhighlight" class to toggle it
+        return !d3.select(this).classed('highlight');
+      });
+    highlightedNodes.classed('fixed', function(d) {
+        // use the current state of the "nonhighlight" class to toggle it
+        return !d3.select(this).classed('fixed');
+      })
+      .dispatch('classChange');
+
+}
+function resetAllFixedNodes(){
+    const fixedNames = d3.selectAll('circle.graphNode.fixed').data().map(d => d.name);
+    const graph = getGraph();
+    for (const name of fixedNames){
+        graph.vertices[name].fixed = !graph.vertices[name].fixed
+    }
+    d3.selectAll('circle.graphNode').classed('highlight', false).classed('fixed', false)
+}

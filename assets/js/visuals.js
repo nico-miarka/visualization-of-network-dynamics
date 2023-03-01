@@ -82,13 +82,14 @@ export function radius (v) {
 export function getVertexColor(vertex){
   return state.color[vertex.level]
 }
-
+//TODO highlightvertices and vertex reset the fix 
 export function toggleHighlight (vertex){
   const node = d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name});
   const isHighlighted = node.classed('highlight');
   node.classed('highlight', !isHighlighted);
 }
 export function highlightVertex (vertex) {
+  
   d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name}).attr('class','graphNode highlight')
 }
 export function highlightVertices (vertices){
@@ -98,7 +99,6 @@ export function grayOutGraph(){
   d3.selectAll('circle.graphNode').attr('class','graphNode nonhighlight')
 }
 export function resetHighlightGraph () {
-  console.log('test')
   d3.selectAll('circle.graphNode').classed('highlight', false).classed('nonhighlight', false)
 }
 

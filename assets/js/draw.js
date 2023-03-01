@@ -8,7 +8,7 @@ import {
 import { getState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
-import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
+import { resetBlendout,blendoutGraph, highlightVertex,resetHighlightGraph} from "./visuals.js";
 import { getGraph } from "./graphUpdate.js";
 import { contextFunctions } from "./contextFunctions.js";
 export function drawNav() {
@@ -217,12 +217,12 @@ export function drawContextMenu(event){
   for (const method in contextFunctions){
     const item = document.createElement("div");
     item.innerText = contextFunctions[method].text;
-    item.addEventListener("click", contextFunctions[method].onClick)
+    item.addEventListener("mousedown", contextFunctions[method].onClick)
     contextMenu.appendChild(item);
   }
   contextMenu.style.position = "absolute";
-  contextMenu.style.left = `${x}px`;
-  contextMenu.style.top = `${y}px`;
+  contextMenu.style.left = `${x+20}px`;
+  contextMenu.style.top = `${y-60}px`;
   document.body.appendChild(contextMenu);
   const closeContextMenu = function(event) {
       contextMenu.remove();

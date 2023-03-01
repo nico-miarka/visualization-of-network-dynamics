@@ -48,6 +48,7 @@ export async function changeVoterVertex (){
             await sleep(state.time)
             changeSpreader(neighbors)
             drawVerticesColor(neighbors)
+            break;
         case 'glauber':
             var vertex = pickVertex(graph,random,1)
             highlightVertices(vertex)
@@ -58,6 +59,7 @@ export async function changeVoterVertex (){
             await sleep(state.time)
             glauberChange(vertex, neighbors, random)
             drawVerticesColor(vertex);
+            break;
 
 
             
