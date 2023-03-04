@@ -24,7 +24,13 @@ export async function changeVoterVertex (){
             await sleep(state.time)
             highlightVertices(neighbors)
             await sleep(state.time)
-            changeVoterOpinion(vertex,neighbors)
+            for (const node in vertex){
+                if (!node.fix){
+                    changeVoterOpinion(vertex,neighbors)
+                } else {
+                    console.log('poof')
+                }
+            }
             drawVertexColor(vertex[0])
             break;
         case 'majority':

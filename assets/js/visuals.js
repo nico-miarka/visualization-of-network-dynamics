@@ -90,13 +90,13 @@ export function toggleHighlight (vertex){
 }
 export function highlightVertex (vertex) {
   
-  d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name}).attr('class','graphNode highlight')
+  d3.selectAll('circle.graphNode').filter(function(d){return d.name === vertex.name}).classed('highlight', true).classed('nonhighlight', false);
 }
 export function highlightVertices (vertices){
-  d3.selectAll('circle.graphNode').filter(function(d){return vertices.includes(d)}).attr('class','graphNode highlight')
+  d3.selectAll('circle.graphNode').filter(function(d){return vertices.includes(d)}).classed('highlight', true).classed('nonhighlight', false);
 }
 export function grayOutGraph(){
-  d3.selectAll('circle.graphNode').attr('class','graphNode nonhighlight')
+  d3.selectAll('circle.graphNode').classed('nonhighlight', true);
 }
 export function resetHighlightGraph () {
   d3.selectAll('circle.graphNode').classed('highlight', false).classed('nonhighlight', false)

@@ -28,7 +28,7 @@ function create_graph(n) {
       name: i,
       neighbors: [],
       level: Math.floor(random() * (numberOfColors - 1) + 0.5),
-      fixed: false,
+      fix: false,
       
     };
   }
