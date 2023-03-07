@@ -89,6 +89,7 @@ function drawGraph(state, graph) {
 }
 function onNodeClick(node){
   toggleHighlight(node)
+  console.log(node)
 }
 /** Sample and draw new graph
  */

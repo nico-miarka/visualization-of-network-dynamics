@@ -4,11 +4,13 @@ import {highlightVertex, grayOutGraph,drawVertexColor, resetHighlightGraph, high
 import { updateChanges } from './dynamicChanges.js'
 import { getState } from './state.js'
 
-function changeVoterOpinion(vertex,neighbors){
-    updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
+function changeVoterOpinion(neighbors){
+    const graph = getGraph();
     //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
-    vertex[0].level = neighbors[0].level
-
+    for (const vertex in neighbors){
+        graph.vertices[vertex].level = graph.vertices[neighbors[vertex]].level
+    }
+    //updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
 }
 
 export async function changeVoterVertex (){
@@ -18,31 +20,52 @@ export async function changeVoterVertex (){
     grayOutGraph()
     switch (state.protocol){
         case 'voter':
-            var vertex = pickVertex(graph, random,1)
-            highlightVertices(vertex)
-            var neighbors = pickNeighbors(graph,vertex, random,1)
+            var vertices = pickVertex(graph, random,2)
+            highlightVertices(vertices)
+            var neighbors = pickNeighbors(graph,vertices, random)
             await sleep(state.time)
-            highlightVertices(neighbors)
+            for (const vertex in neighbors){
+                console.log(neighbors[vertex])
+                highlightVertex(graph.vertices[neighbors[vertex]])
+            }
             await sleep(state.time)
-            for (const node in vertex){
+            for (const node of vertices){
                 if (!node.fix){
-                    changeVoterOpinion(vertex,neighbors)
+                    changeVoterOpinion(neighbors)
                 } else {
+                    //TODO forward function 
                     console.log('poof')
                 }
             }
-            drawVertexColor(vertex[0])
+            for (const vertex of vertices){
+                console.log(vertex)
+                drawVertexColor(vertex)
+            }
             break;
         case 'majority':
-            var vertex = pickVertex(graph, random,1)
-            highlightVertices(vertex)
-            var neighbors = pickNeighbors(graph,vertex, random,state.majority)
+            var vertices = pickVertex(graph, random,2)
+            highlightVertices(vertices)
+            var neighbors = pickNeighbors(graph,vertices, random,state.majority)
             await sleep(state.time)
-            highlightVertices(neighbors)
+            for (const vertex in neighbors){
+                console.log(neighbors[vertex])
+                highlightVertices(graph.vertices[neighbors[vertex]])
+            }
             await sleep(state.time)
             //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
-            changeOpinion(vertex[0],neighbors)
-            drawVertexColor(vertex[0])
+            for (const node of vertices){
+                if (!node.fix){
+                    console.log(node)
+                    changeOpinion(neighbors)
+                } else {
+                    //TODO forward function 
+                    console.log('poof')
+                }
+            }
+            for (const vertex of vertices){
+                console.log(vertex)
+                drawVertexColor(vertex)
+            }
             break;
         case 'rumor':
             var vertex = pickSpreaders(graph)
@@ -135,21 +158,18 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 export function pickVertex(graph,random,numberOfVertices){
-    const vertices = [];
-    for (let i=0; i<numberOfVertices;i++){
-        vertices.push(graph.vertices[Math.floor(random() * graph.vertices.length)])
-    }
-    return vertices
+    const vertices = [...graph.vertices];
+    const shuffled = vertices.sort(() => 0.5 - random())
+    return shuffled.slice(0,numberOfVertices)
 }
 
-function pickNeighbors(graph,vertex,random,majority=1){
-    const neighbors = []
+function pickNeighbors(graph,vertices,random,majority=1){
+    const neighbors = {}
     //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
-    for (const i of vertex[0].neighbors){
-        neighbors.push(graph.vertices[i])
+    for (const vertex of vertices){
+        neighbors[vertex.name] = vertex.neighbors.sort(() => 0.5 - random()).slice(0,majority);
     }
-    const shuffled = neighbors.sort(() => 0.5 - random());
-    return shuffled.slice(0,majority)
+    return neighbors
 }
 
 function getMaxOpinions(opinions){

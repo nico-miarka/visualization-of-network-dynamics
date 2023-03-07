@@ -48,9 +48,7 @@ export function changeOpinionSum(){
   sumOfOpinions[state.step] = Object.assign({}, sumOfOpinions[state.step-1])
   for (const node in changes[state.step-1]){
     const vertex = changes[state.step-1][node][0]
-    console.log(changes)
     const neighbor = changes[state.step-1][node][1]
-    console.log(vertex, neighbor)
     sumOfOpinions[state.step][vertex]--;
     sumOfOpinions[state.step][neighbor]++;
   }
