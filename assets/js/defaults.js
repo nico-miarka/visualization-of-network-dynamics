@@ -22,6 +22,7 @@ export const state = {
   ],
   majority: 2,
   numberOfColors: 3,
+  numberOfVertices: 4,
   sync: "sync",
   step: 0,
   time:500,

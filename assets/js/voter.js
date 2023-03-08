@@ -6,10 +6,16 @@ import { getState } from './state.js'
 
 function changeVoterOpinion(neighbors){
     const graph = getGraph();
+    const vertices= {}
     //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
     for (const vertex in neighbors){
-        graph.vertices[vertex].level = graph.vertices[neighbors[vertex]].level
+        if (!graph.vertices[vertex].fix){
+            vertices[vertex] = [graph.vertices[vertex].level, graph.vertices[neighbors[vertex]].level, neighbors[vertex]]
+            graph.vertices[vertex].level = graph.vertices[neighbors[vertex]].level
+            
+        }
     }
+    console.log(vertices)
     //updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
 }
 
@@ -20,43 +26,34 @@ export async function changeVoterVertex (){
     grayOutGraph()
     switch (state.protocol){
         case 'voter':
-            var vertices = pickVertex(graph, random,2)
+            var vertices = pickVertex(graph, random,state.numberOfVertices)
             highlightVertices(vertices)
             var neighbors = pickNeighbors(graph,vertices, random)
             await sleep(state.time)
             for (const vertex in neighbors){
-                console.log(neighbors[vertex])
                 highlightVertex(graph.vertices[neighbors[vertex]])
             }
             await sleep(state.time)
-            for (const node of vertices){
-                if (!node.fix){
-                    changeVoterOpinion(neighbors)
-                } else {
-                    //TODO forward function 
-                    console.log('poof')
-                }
-            }
+            changeVoterOpinion(neighbors)
             for (const vertex of vertices){
                 console.log(vertex)
                 drawVertexColor(vertex)
             }
             break;
         case 'majority':
-            var vertices = pickVertex(graph, random,2)
+            var vertices = pickVertex(graph, random,state.numberOfVertices)
             highlightVertices(vertices)
             var neighbors = pickNeighbors(graph,vertices, random,state.majority)
             await sleep(state.time)
             for (const vertex in neighbors){
-                console.log(neighbors[vertex])
-                highlightVertices(graph.vertices[neighbors[vertex]])
+                highlightVertices(graph.vertices.filter(node=> neighbors[vertex].includes(node.name)))
             }
             await sleep(state.time)
             //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
             for (const node of vertices){
                 if (!node.fix){
                     console.log(node)
-                    changeOpinion(neighbors)
+                    changeOpinion(neighbors,random)
                 } else {
                     //TODO forward function 
                     console.log('poof')
@@ -187,23 +184,27 @@ Object.getOwnPropertyNames(opinions).forEach(k => {
     return result
 }
 
-function changeOpinion (vertex, neighbors){
-
+function changeOpinion (neighborsArray,random){
+    const graph = getGraph();
     /** own vertex opinion matters in h-majority therefore we include it in opinions */
-    const opinions = neighbors.concat(vertex)
-    const test = counter(opinions)
-    const maxOpinions = getMaxOpinions(test)
-    /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
-    if (maxOpinions.length === 1){
-        updateChanges(vertex.name,vertex.level,maxOpinions, neighbors)
-        vertex.level = maxOpinions[0]
-    } else {
-        /** if vertex opinion is one of the max opinions, it stays the same, else choose random */
-        if(!maxOpinions.includes(vertex.level)){
-            const newOpinion = maxOpinions[Math.floor(random() * maxOpinions.length)]
-            updateChanges(vertex.name,vertex.level,newOpinion, neighbors)
-            vertex.level = newOpinion
+    for (const vertex in neighborsArray){
+        const neighbors = graph.vertices.filter(node=> neighborsArray[vertex].includes(node.name))
+        const opinions = neighbors.concat(graph.vertices[vertex])
+        const test = counter(opinions)
+        const maxOpinions = getMaxOpinions(test)
+        /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
+        if (maxOpinions.length === 1){
+            updateChanges(vertex.name,vertex.level,maxOpinions, neighbors)
+            graph.vertices[vertex].level = maxOpinions[0]
+        } else {
+            /** if vertex opinion is one of the max opinions, it stays the same, else choose random */
+            if(!maxOpinions.includes(vertex.level)){
+                const newOpinion = maxOpinions[Math.floor(random() * maxOpinions.length)]
+                updateChanges(vertex.name,vertex.level,newOpinion, neighbors)
+                graph.vertices[vertex].level = newOpinion
+            }
         }
+
     }
     
 }
