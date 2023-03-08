@@ -131,10 +131,10 @@ export const icons = {
 
 var changes = []
 
-export function updateChanges(key,oldValue,newValue, neighbor){
+export function updateChanges(values){
   const state = getState()
   const changes = getChanges()
-  changes[state.step-1][key] = [oldValue,newValue, neighbor]
+  changes[state.step-1] = values;
   setChanges(changes)
 }
 export function getChanges(){

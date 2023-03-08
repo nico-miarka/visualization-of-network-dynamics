@@ -15,7 +15,7 @@ function changeVoterOpinion(neighbors){
             
         }
     }
-    console.log(vertices)
+    updateChanges(vertices)
     //updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
 }
 
