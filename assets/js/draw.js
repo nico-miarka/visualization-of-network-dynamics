@@ -67,7 +67,9 @@ export function drawControlPanel() {
   }
   control.appendChild(controlbar);
 }
-
+function drawTimeSelector(parent){
+  const timeSelector = document.createElement("")
+}
 export function drawPlotBar() {
   const div = document.getElementById("plotBar");
   while (div.firstChild) {
