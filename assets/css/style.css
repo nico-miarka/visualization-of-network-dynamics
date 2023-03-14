@@ -231,6 +231,21 @@ div.button:hover > div {
   height: 75px;
   padding-bottom: 10px;
 }
+#selectorbar {
+  margin-right: 100px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 300px;
+  list-style-type: none;
+  height: 100%;
+}
+#selectorbar li{
+  display: flex;
+}
+input{
+  width: 50px;
+}
 #controlbar {
   display: flex;
   justify-content: space-evenly;

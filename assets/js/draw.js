@@ -5,7 +5,7 @@ import {
   protocolFunctions,
   getChanges,
 } from "./dynamicChanges.js";
-import { getState } from "./state.js";
+import { getState, updateState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
 import { resetBlendout,blendoutGraph, highlightVertex,resetHighlightGraph} from "./visuals.js";
@@ -49,11 +49,14 @@ export function drawNav() {
 export function drawControlPanel() {
   const state = getState();
   const control = document.getElementById("control");
+  const selectorbar = document.createElement("ul");
   const controlbar = document.createElement("ul");
   controlbar.id = "controlbar";
+  selectorbar.id = "selectorbar";
   while (control.firstChild) {
     control.removeChild(control.lastChild);
   }
+  drawSelectors(selectorbar)
   for (const method in protocolFunctions) {
     const button = document.createElement("li");
     button.id = method;
@@ -65,10 +68,73 @@ export function drawControlPanel() {
     button.appendChild(icon);
     controlbar.appendChild(button);
   }
+  control.appendChild(selectorbar);
   control.appendChild(controlbar);
 }
-function drawTimeSelector(parent){
-  const timeSelector = document.createElement("")
+function drawSelectors(parent){
+  const state = getState();
+  for(const element in selectors){
+    const listitem = document.createElement("li")
+    const selector = document.createElement("input")
+    selector.type = selectors[element].type
+    selector.id = selectors[element].id;
+    selector.name = selectors[element].id;
+    selector.value = selectors[element].getValue(state) ;
+    selector.addEventListener("change", function(){
+        selectors[element].update(selector.value);
+    })
+    const label = document.createElement("label")
+    label.for = selectors[element].id;
+    label.innerText = selectors[element].labelText
+    listitem.appendChild(label)
+    listitem.appendChild(selector)
+    parent.appendChild(listitem)
+  }
+}
+const selectors = {
+  timeSelector:{
+    type: "number",
+    id: "timeSelector",
+    getValue: (state) => state.time,
+    update: (key) => updateState({time: key}),
+    labelText: "time: ",
+  },
+  nSelector:{
+    type: "number",
+    id: "nSelector",
+    getValue: (state) => state.n,
+    update: (key) => updateState({n: key}),
+    labelText: "n: ",
+  },
+  mSelector:{
+    type: "number",
+    id: "mSelector",
+    getValue: (state) => state.m,
+    update: (key) => updateState({m: key}),
+    labelText: "m: ",
+  },
+  nodeSelector:{
+    type: "number",
+    id: "nodeSelector",
+    getValue: (state) => state.numberOfVertices,
+    update: (key) => updateState({numberOfVertices: key}),
+    labelText: "nodes: ",
+  },
+  stepSelector:{
+    type: "number",
+    id: "stepSelector",
+    getValue: (state) => state.step,
+    update: (key) => updateState({step: key}),
+    labelText: "step: ",
+  },
+  colorSelector:{
+    type: "number",
+    id: "colorsSelector",
+    getValue: (state) => state.numberOfColors,
+    update: (key) => updateState({numberOfColors: key}),
+    labelText: "colors: ",
+  }
+  
 }
 export function drawPlotBar() {
   const div = document.getElementById("plotBar");
@@ -170,7 +236,7 @@ export function drawStateDistribution(){
   const state = getState();
   const graph = getGraph();
   const changes = getChanges();
-  const color = ['red','blue','green','yellow']
+  const color = ['red','blue','green','yellow','purple','orange','gray']
   const parent = d3.select("#stateDistribution")
   const width = parent.node().offsetWidth;
   const height = parent.node().offsetHeight;

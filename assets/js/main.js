@@ -2,7 +2,7 @@
 import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomGraph} from "./randomGraph.js";
-import { getVertexColor, grayOutGraph, highlightVertex,blendoutGraph,toggleHighlight } from "./visuals.js";
+import { getVertexColor, toggleHighlight } from "./visuals.js";
 import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawContextMenu} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
 import { sumOpinions, setSumOfOpinions} from "./plot.js";
@@ -115,9 +115,6 @@ async function reload(forceResample = false) {
     updateStateDistribution();
     
   }
-  if (changedFields.has("protocolSeed")){
-    setProtocolRandom(state.protocolSeed)
-  }
   if (
     forceResample ||
     changedFields === undefined ||
@@ -125,17 +122,19 @@ async function reload(forceResample = false) {
     changedFields.has("m") ||
     changedFields.has("seed") ||
     changedFields.has("colorSeed") ||
-    changedFields.has("protocolSeed")
+    changedFields.has("protocolSeed") ||
+    changedFields.has("numberOfColors")
   ) {
     setProtocolRandom(state.protocolSeed)
     const graph = randomGraph(state.n, state.m, state.seed);
+    setGraph(graph);
     console.log(graph)
     setSumOfOpinions([sumOpinions()]);
     setChanges([]);
     state.step = 0;
-    setGraph(graph);
     drawGraph(state, graph);
     updateStateDistribution();
+    drawControlPanel();
 
 
     /** TODO add button to do one iteration */
