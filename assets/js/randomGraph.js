@@ -66,7 +66,7 @@ function addRandomEdges(graph, m, random, maxNumEdges) {
 }
 
 function randomWalk(n, m, random, maxNumEdges) {
-  const graph = create_graph(n, random);
+  const graph = create_graph(n);
   const unvisited = new Set(graph.vertices);
   const visited = new Set();
   var currentVertex =
@@ -78,8 +78,8 @@ function randomWalk(n, m, random, maxNumEdges) {
       graph.vertices[Math.floor(random() * graph.vertices.length)];
     if (!visited.has(nextVertex)) {
       graph.edges.push({ source: currentVertex, target: nextVertex });
-      currentVertex.neighbors.push(nextVertex.name);
-      nextVertex.neighbors.push(currentVertex.name);
+      currentVertex.neighbors.push(nextVertex);
+      nextVertex.neighbors.push(currentVertex);
       unvisited.delete(nextVertex);
       visited.add(nextVertex);
     }

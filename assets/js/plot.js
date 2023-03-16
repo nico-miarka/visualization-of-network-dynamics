@@ -1,7 +1,7 @@
 import { getGraph } from "./graphUpdate.js";
 import { getState, updateState } from "./state.js";
 import { getChanges } from "./dynamicChanges.js";
-import { highlightVertex,highlightVertices, grayOutGraph, resetHighlightGraph, drawVerticesColor } from "./visuals.js";
+import { highlightVertex,highlightVertices, grayOutGraph, resetHighlightGraph, drawVerticesColor, drawVertexColor } from "./visuals.js";
 export const plots = {
   stateDistribution: {
     onClick: toggleProtocol("stateDistribution"),
@@ -97,21 +97,21 @@ export async function changesForward(){
     const changes = getChanges()[state.step];
     const graph = getGraph();
     grayOutGraph();
+    console.log(changes)
     for (const name in changes){
       const vertex = graph.vertices[name]
       highlightVertex(vertex)
     }
     await sleep(state.time)
     for (const name in changes){
-      const neighbor = graph.vertices.filter(vertex=> changes[name][2].includes(vertex.name))
+      const neighbor = changes[name][2]
       highlightVertices(neighbor)
     }
     await sleep(state.time)
     for (const name in changes){
       graph.vertices[name].level = changes[name][1]
+      drawVertexColor(graph.vertices[name])
     }
-    const vertices = graph.vertices.filter(vertex=> Object.keys(changes).includes(vertex.name.toString()))
-    drawVerticesColor(vertices)
     await sleep(state.time)
     resetHighlightGraph();
   }

@@ -75,21 +75,31 @@ export function forwards() {
   return async () => {
     const state = getState();
     changes = getChanges();
+    if (changes.length == state.step){
     await changeVoterVertex();
     changeOpinionSum();
     updateStateDistribution();
     updateState({ step: ++state.step });
+    } else {
+      changesForward();
+      updateState({ step: ++state.step });
+    }
   };
 }
 export async function skipSteps(newStep) {
   const state = getState();
   console.log(state.step, newStep);
   while (state.step < newStep) {
-    const changes = getChanges();
-    skipVoterVertex();
-    changeOpinionSum();
-    updateStateDistribution();
-    updateState({ step: ++state.step });
+    if (changes.length == state.step){
+      await skipVoterVertex();
+      changeOpinionSum();
+      updateStateDistribution();
+      updateState({ step: ++state.step });
+      } else {
+        //TODO fix skipforward bug
+        changesForward();
+        updateState({ step: ++state.step });
+      }
   }
   while (state.step > newStep) {
     skipBackward();
