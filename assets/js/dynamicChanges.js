@@ -1,8 +1,8 @@
 import { getState, updateState } from "./state.js";
-import { changeVoterVertex,skipVoterVertex } from "./voter.js";
+import { changeVoterVertex, skipVoterVertex } from "./voter.js";
 import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
 import { updateStateDistribution } from "./draw.js";
-import { backward,changesForward, skipBackward } from "./plot.js";
+import { backward, changesForward, skipBackward } from "./plot.js";
 import { getGraph } from "./graphUpdate.js";
 import { drawVertexColor } from "./visuals.js";
 let running = false;
@@ -27,7 +27,7 @@ function switchProtocol(key) {
 const switchToRumor = switchProtocol("rumor");
 const switchToVoter = switchProtocol("voter");
 const switchToMajority = switchProtocol("majority");
-const switchToGlauber = switchProtocol('glauber')
+const switchToGlauber = switchProtocol("glauber");
 
 export function reloadSeed(seed) {
   return () => {
@@ -66,43 +66,37 @@ function startStop() {
       clearInterval(intervalId);
       running = false;
     } else {
-      intervalId = setInterval(forwardFunction, state.time*4);
+      intervalId = setInterval(forwardFunction, state.time * 4);
       running = true;
     }
   };
 }
 export function forwards() {
-  return async() => {
+  return async () => {
     const state = getState();
-    changes = getChanges()
-    if (changes.length == state.step){
+    changes = getChanges();
     await changeVoterVertex();
     changeOpinionSum();
     updateStateDistribution();
     updateState({ step: ++state.step });
-  } else {
-    changesForward();
-    updateState({ step: ++state.step });
-  }
-
   };
 }
-export async function skipSteps(newStep){
+export async function skipSteps(newStep) {
   const state = getState();
-  console.log(state.step, newStep)
-  while (state.step < newStep){
+  console.log(state.step, newStep);
+  while (state.step < newStep) {
     const changes = getChanges();
     skipVoterVertex();
     changeOpinionSum();
     updateStateDistribution();
     updateState({ step: ++state.step });
-    }
-  while (state.step > newStep){
+  }
+  while (state.step > newStep) {
     skipBackward();
     updateState({ step: --state.step });
   }
   const graph = getGraph();
-  for (const vertex of graph.vertices){
+  for (const vertex of graph.vertices) {
     drawVertexColor(vertex);
   }
 }
@@ -149,17 +143,17 @@ export const icons = {
   startStop: "play_arrow",
 };
 
-var changes = []
+var changes = [];
 
-export function updateChanges(values){
-  const state = getState()
-  const changes = getChanges()
+export function updateChanges(values) {
+  const state = getState();
+  const changes = getChanges();
   changes[state.step] = values;
-  setChanges(changes)
+  setChanges(changes);
 }
-export function getChanges(){
-  return changes
+export function getChanges() {
+  return changes;
 }
-export function setChanges(newChanges){
-  changes = newChanges
+export function setChanges(newChanges) {
+  changes = newChanges;
 }
