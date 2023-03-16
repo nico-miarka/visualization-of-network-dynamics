@@ -115,6 +115,9 @@ async function reload(forceResample = false) {
     updateStateDistribution();
     
   }
+  if (changedFields.has("step")){
+    drawControlPanel();
+  }
   if (
     forceResample ||
     changedFields === undefined ||

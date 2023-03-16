@@ -27,4 +27,5 @@ export const state = {
   step: 0,
   time:500,
   temperature:5,
+
 };

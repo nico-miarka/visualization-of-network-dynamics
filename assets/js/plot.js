@@ -45,12 +45,12 @@ export function changeOpinionSum(){
   const sumOfOpinions = getSumOfOpinions();
   const state = getState();
   const changes = getChanges();
-  sumOfOpinions[state.step] = Object.assign({}, sumOfOpinions[state.step-1])
-  for (const node in changes[state.step-1]){
-    const vertex = changes[state.step-1][node][0]
-    const neighbor = changes[state.step-1][node][1]
-    sumOfOpinions[state.step][vertex]--;
-    sumOfOpinions[state.step][neighbor]++;
+  sumOfOpinions[state.step+1] = Object.assign({}, sumOfOpinions[state.step])
+  for (const node in changes[state.step]){
+    const vertex = changes[state.step][node][0]
+    const neighbor = changes[state.step][node][1]
+    sumOfOpinions[state.step+1][vertex]--;
+    sumOfOpinions[state.step+1][neighbor]++;
   }
   
 }
@@ -58,7 +58,6 @@ export function changeOpinionSum(){
 export function backward(){
   return async () => {
   const state = getState();
-  console.log(state.step)
   if (state.step > 0){
     const changes = getChanges()[state.step-1];
     const graph = getGraph();
@@ -76,7 +75,23 @@ export function backward(){
   }
 }
 }
-
+export function skipBackward(){
+  const state = getState();
+  if (state.step > 0){
+    const changes = getChanges()[state.step-1];
+    const graph = getGraph();
+    console.log(graph)
+    grayOutGraph()
+    const vertices = graph.vertices.filter(vertex=> Object.keys(changes).includes(vertex.name.toString()))
+    highlightVertices(vertices)
+    for (const vertex in changes){
+      graph.vertices[vertex].level = changes[vertex][0]
+    }
+    drawVerticesColor(vertices)
+    resetHighlightGraph()
+    updateState({ step: --state.step });
+}
+}
 export async function changesForward(){
     const state = getState();
     const changes = getChanges()[state.step];
@@ -89,7 +104,6 @@ export async function changesForward(){
     await sleep(state.time)
     for (const name in changes){
       const neighbor = graph.vertices.filter(vertex=> changes[name][2].includes(vertex.name))
-      console.log(neighbor)
       highlightVertices(neighbor)
     }
     await sleep(state.time)

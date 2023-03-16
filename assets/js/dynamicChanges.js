@@ -1,8 +1,10 @@
 import { getState, updateState } from "./state.js";
-import { changeVoterVertex } from "./voter.js";
+import { changeVoterVertex,skipVoterVertex } from "./voter.js";
 import { changeOpinionSum, getSumOfOpinions } from "./plot.js";
 import { updateStateDistribution } from "./draw.js";
-import { backward,changesForward } from "./plot.js";
+import { backward,changesForward, skipBackward } from "./plot.js";
+import { getGraph } from "./graphUpdate.js";
+import { drawVertexColor } from "./visuals.js";
 let running = false;
 let intervalId;
 function toggleProtocol(key) {
@@ -74,17 +76,35 @@ export function forwards() {
     const state = getState();
     changes = getChanges()
     if (changes.length == state.step){
-    changes[state.step] = {}
-    updateState({ step: ++state.step });
     await changeVoterVertex();
     changeOpinionSum();
     updateStateDistribution();
+    updateState({ step: ++state.step });
   } else {
     changesForward();
     updateState({ step: ++state.step });
   }
 
   };
+}
+export async function skipSteps(newStep){
+  const state = getState();
+  console.log(state.step, newStep)
+  while (state.step < newStep){
+    const changes = getChanges();
+    skipVoterVertex();
+    changeOpinionSum();
+    updateStateDistribution();
+    updateState({ step: ++state.step });
+    }
+  while (state.step > newStep){
+    skipBackward();
+    updateState({ step: --state.step });
+  }
+  const graph = getGraph();
+  for (const vertex of graph.vertices){
+    drawVertexColor(vertex);
+  }
 }
 export const protocolFunctions = {
   backwards: backward,
@@ -134,7 +154,7 @@ var changes = []
 export function updateChanges(values){
   const state = getState()
   const changes = getChanges()
-  changes[state.step-1] = values;
+  changes[state.step] = values;
   setChanges(changes)
 }
 export function getChanges(){

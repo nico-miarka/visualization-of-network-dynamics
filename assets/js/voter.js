@@ -19,7 +19,7 @@ function changeVoterOpinion(neighbors){
     //updateChanges(vertex[0].name,vertex[0].level,neighbors[0].level, neighbors)
 }
 
-export async function changeVoterVertex (){
+export async function changeVoterVertex (time = getState().time){
     const state = getState()
     const graph = getGraph()
     var random = getProtocolRandom()
@@ -29,14 +29,13 @@ export async function changeVoterVertex (){
             var vertices = pickVertex(graph, random,state.numberOfVertices)
             highlightVertices(vertices)
             var neighbors = pickNeighbors(graph,vertices, random)
-            await sleep(state.time)
+            await sleep(time)
             for (const vertex in neighbors){
                 highlightVertex(graph.vertices[neighbors[vertex]])
             }
-            await sleep(state.time)
+            await sleep(time)
             changeVoterOpinion(neighbors)
             for (const vertex of vertices){
-                console.log(vertex)
                 drawVertexColor(vertex)
             }
             break;
@@ -44,12 +43,11 @@ export async function changeVoterVertex (){
             var vertices = pickVertex(graph, random,state.numberOfVertices)
             highlightVertices(vertices)
             var neighbors = pickNeighbors(graph,vertices, random,state.majority)
-            await sleep(state.time)
+            await sleep(time)
             for (const vertex in neighbors){
                 highlightVertices(graph.vertices.filter(node=> neighbors[vertex].includes(node.name)))
             }
-            await sleep(state.time)
-            //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
+            await sleep(time)
             for (const node of vertices){
                 if (!node.fix){
                     console.log(node)
@@ -69,9 +67,9 @@ export async function changeVoterVertex (){
             highlightVertices(vertex)
             console.log(vertex)
             var neighbors = pickSpreadersNeigbors(graph,vertex)
-            await sleep(state.time)
+            await sleep(time)
             highlightVertices(neighbors)
-            await sleep(state.time)
+            await sleep(time)
             changeSpreader(neighbors)
             drawVerticesColor(neighbors)
             break;
@@ -80,9 +78,9 @@ export async function changeVoterVertex (){
             highlightVertices(vertex)
             var neighbors = pickSpreadersNeigbors(graph,vertex)
             console.log(neighbors)
-            await sleep(state.time)
+            await sleep(time)
             highlightVertices(neighbors)
-            await sleep(state.time)
+            await sleep(time)
             glauberChange(vertex, neighbors, random)
             drawVerticesColor(vertex);
             break;
@@ -90,8 +88,46 @@ export async function changeVoterVertex (){
 
             
     }
-    await sleep(state.time)
+    await sleep(time)
     resetHighlightGraph()
+}
+export async function skipVoterVertex (){
+    const state = getState()
+    const graph = getGraph()
+    var random = getProtocolRandom()
+    switch (state.protocol){
+        case 'voter':
+            var vertices = pickVertex(graph, random,state.numberOfVertices)
+            var neighbors = pickNeighbors(graph,vertices, random)
+            changeVoterOpinion(neighbors)
+            break;
+        case 'majority':
+            var vertices = pickVertex(graph, random,state.numberOfVertices)
+            var neighbors = pickNeighbors(graph,vertices, random,state.majority)
+            for (const node of vertices){
+                if (!node.fix){
+                    console.log(node)
+                    changeOpinion(neighbors,random)
+                } else {
+                    //TODO forward function 
+                    console.log('poof')
+                }
+            }
+            break;
+        case 'rumor':
+            var vertex = pickSpreaders(graph)
+            var neighbors = pickSpreadersNeigbors(graph,vertex)
+            changeSpreader(neighbors)
+            break;
+        case 'glauber':
+            var vertex = pickVertex(graph,random,1)
+            var neighbors = pickSpreadersNeigbors(graph,vertex)
+            glauberChange(vertex, neighbors, random)
+            break;
+
+
+            
+    }
 }
 function glauberChange(vertex, neighbors, random){
     const state = getState();

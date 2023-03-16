@@ -4,11 +4,12 @@ import {
   icons,
   protocolFunctions,
   getChanges,
+  skipSteps
 } from "./dynamicChanges.js";
 import { getState, updateState } from "./state.js";
 import { plots } from "./plot.js";
 import { getSumOfOpinions } from "./plot.js";
-import { resetBlendout,blendoutGraph, highlightVertex,resetHighlightGraph} from "./visuals.js";
+import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
 import { getGraph } from "./graphUpdate.js";
 import { contextFunctions } from "./contextFunctions.js";
 export function drawNav() {
@@ -124,7 +125,8 @@ const selectors = {
     type: "number",
     id: "stepSelector",
     getValue: (state) => state.step,
-    update: (key) => updateState({step: key}),
+    update: (key) => {
+      skipSteps(key);},
     labelText: "step: ",
   },
   colorSelector:{
