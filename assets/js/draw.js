@@ -1,17 +1,15 @@
 import {
-  topics,
-  protocols,
   icons,
   protocolFunctions,
   getChanges,
-  skipSteps
+  skipSteps,
 } from "./dynamicChanges.js";
 import { getState, updateState } from "./state.js";
-import { plots } from "./plot.js";
-import { getSumOfOpinions } from "./plot.js";
+import { plots,getSumOfOpinions } from "./plot.js";
 import { resetBlendout,blendoutGraph, highlightVertex} from "./visuals.js";
 import { getGraph } from "./graphUpdate.js";
 import { contextFunctions } from "./contextFunctions.js";
+import {protocols, topics} from "./voter.js"
 export function drawNav() {
   const nav = document.getElementById("nav");
   while (nav.firstChild) {

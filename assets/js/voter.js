@@ -1,27 +1,161 @@
 import { getGraph, getProtocolRandom } from "./graphUpdate.js";
 import { counter } from "./lib/counter.js";
 import {
-  highlightVertex,
   grayOutGraph,
   drawVertexColor,
   resetHighlightGraph,
   highlightVertices,
   drawVerticesColor,
+  toggleProtocol,
+  switchProtocol,
 } from "./visuals.js";
-import { updateChanges } from "./dynamicChanges.js";
+import { updateChanges, reloadSeed } from "./dynamicChanges.js";
 import { getState } from "./state.js";
-export function pickVertex(numberOfVertices) {
+export async function changeVertex(time = getState().time) {
+  const state = getState();
+  grayOutGraph();
+  var vertices = protocols[state.protocol].pickVertex()
+  highlightVertices(vertices);
+  var neighbors = protocols[state.protocol].pickNeighbors(vertices)
+  await sleep(time);
+  for (const vertex in neighbors) {
+    highlightVertices(neighbors[vertex]);
+  }
+  await sleep(time);
+  protocols[state.protocol].changeOpinion(neighbors,vertices)
+  if (state.protocol == "rumor"){
+    for (const vertex in neighbors){
+      drawVerticesColor(neighbors[vertex])
+    }
+  } else {
+    drawVerticesColor(vertices)
+  }
+  await sleep(time);
+  resetHighlightGraph();
+}
+export async function skipVoterVertex() {
+  const state = getState();
+  grayOutGraph();
+  var vertices = protocols[state.protocol].pickVertex()
+  highlightVertices(vertices);
+  var neighbors = protocols[state.protocol].pickNeighbors(vertices)
+  for (const vertex in neighbors) {
+    highlightVertices(neighbors[vertex]);
+  }
+  protocols[state.protocol].changeOpinion(neighbors,vertices)
+  if (state.protocol == "rumor"){
+    for (const vertex in neighbors){
+      drawVerticesColor(neighbors[vertex])
+    }
+  } else {
+    drawVerticesColor(vertices)
+  }
+  resetHighlightGraph();
+}
+export const topics = {
+  opinion: {
+    protocols: ["voter", "majority"],
+    onClick: toggleProtocol("opinion"),
+  },
+  glauber: {
+    protocols: ["glauber", "filler"],
+    onClick: toggleProtocol("glauber"),
+  },
+  rumor: {
+    protocols: ["more", "SIRmodel", "rumor"],
+    onClick: toggleProtocol("rumor"),
+  },
+  reload: {
+    protocols: ["graph", "color", "algo"],
+    onClick: toggleProtocol("reload"),
+  },
+};
+
+export const protocols = {
+  more: {
+    onClick: switchProtocol("majority"),
+  },
+  SIRmodel: {
+    onClick: switchProtocol("voter"),
+  },
+  rumor: {
+    pickVertex: pickSpreaders,
+    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
+    changeOpinion: (neighbors)=> changeRumorOpinion(neighbors),
+    onClick: switchProtocol("rumor"),
+  },
+  glauber: {
+    pickVertex: pickVertex,
+    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
+    changeOpinion: (neighbors, vertices) => glauberChange(neighbors,vertices),
+    onClick: switchProtocol("glauber"),
+  },
+  filler: {
+    onClick: switchProtocol("voter"),
+  },
+  voter: {
+    pickVertex:pickVertex,
+    pickNeighbors: (vertices) => pickNeighbors(vertices,1),
+    changeOpinion: (neighbors)=> changeVoterOpinion(neighbors),
+    onClick: switchProtocol("voter"),
+  },
+  majority: {
+    pickVertex:pickVertex,
+    pickNeighbors: (vertices) => pickNeighbors(vertices,getState().majority),
+    changeOpinion: (neighbors)=> changeMajorityOpinion(neighbors),
+    onClick: switchProtocol("majority"),
+  },
+  graph: {
+    onClick: reloadSeed("seed"),
+  },
+  color: {
+    onClick: reloadSeed("colorSeed"),
+  },
+  algo: {
+    onClick: reloadSeed("protocolSeed"),
+  },
+};
+export function pickVertex() {
+  const numberOfVertices = getState().numberOfVertices
   const graph = getGraph();
   const random = getProtocolRandom();
   const vertices = [...graph.vertices];
   const shuffled = vertices.sort(() => 0.5 - random());
   return shuffled.slice(0, numberOfVertices);
 }
+function pickNeighbors(vertices, majority = 1) {
+  const random = getProtocolRandom();
+  const neighbors = {};
+  //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
+  for (const vertex of vertices) {
+    neighbors[vertex.name] = vertex.neighbors
+      .sort(() => 0.5 - random())
+      .slice(0, majority);
+  }
+  return neighbors;
+}
+function pickSpreaders() {
+  const graph = getGraph();
+  const spreader = [];
+  for (const node of graph.vertices) {
+    if (node.level === 0) {
+      spreader.push(node);
+    }
+  }
+  return spreader;
+}
+function pickSpreadersNeighbors(vertices) {
+  const neighbors = {};
+  for (const vertex of vertices) {
+    console.log(vertex)
+    neighbors[vertex.name] = vertex.neighbors
+  }
+  return neighbors;
+}
 function changeVoterOpinion(neighbors) {
   const graph = getGraph();
   const vertices = {};
-  //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
-  for (const vertex in neighbors) {
+    for (const vertex in neighbors) {
     if (!graph.vertices[vertex].fix) {
       vertices[vertex] = [
         graph.vertices[vertex].level,
@@ -33,112 +167,52 @@ function changeVoterOpinion(neighbors) {
   }
   updateChanges(vertices);
 }
+function changeMajorityOpinion(neighborsArray) {
+  const random = getProtocolRandom();
+  const graph = getGraph();
+  const vertices = {}
+  /** own vertex opinion matters in h-majority therefore we include it in opinions */
+  for (const vertex in neighborsArray) {
+    const neighbors = neighborsArray[vertex]
+    const opinions = neighbors.concat(graph.vertices[vertex]);
+    const test = counter(opinions);
+    const maxOpinions = getMaxOpinions(test);
+    /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
+    if (maxOpinions.length === 1) {
+      vertices[vertex] = [ graph.vertices[vertex].level, maxOpinions[0], neighbors]
+      graph.vertices[vertex].level = maxOpinions[0];
+    } else {
+      /** if vertex opinion is one of the max opinions, it stays the same, else choose random */
+      if (!maxOpinions.includes(vertex.level)) {
+        const newOpinion =
+          maxOpinions[Math.floor(random() * maxOpinions.length)];
+        vertices[vertex] = [graph.vertices[vertex].level, newOpinion, neighbors]
+        graph.vertices[vertex].level = newOpinion;
+      }
+    }
+  }
+  updateChanges(vertices);
+}
 
-export async function changeVoterVertex(time = getState().time) {
-  const state = getState();
-  const graph = getGraph();
-  var random = getProtocolRandom();
-  grayOutGraph();
-  switch (state.protocol) {
-    case "voter":
-      var vertices = pickVertex(state.numberOfVertices);
-      highlightVertices(vertices);
-      var neighbors = pickNeighbors(graph, vertices, random);
-      await sleep(time);
-      for (const vertex in neighbors) {
-        highlightVertices(neighbors[vertex]);
-      }
-      await sleep(time);
-      changeVoterOpinion(neighbors);
-      drawVerticesColor(vertices)
-      break;
-    case "majority":
-      var vertices = pickVertex( state.numberOfVertices);
-      highlightVertices(vertices);
-      var neighbors = pickNeighbors(graph, vertices, random, state.majority);
-      await sleep(time);
-      for (const vertex in neighbors) {
-        highlightVertices(neighbors[vertex]);
-      }
-      await sleep(time);
-      for (const node of vertices) {
-        if (!node.fix) {
-          changeOpinion(neighbors, random);
-        } else {
-          //TODO forward function
-          console.log("poof");
-        }
-      }
-      for (const vertex of vertices) {
-        drawVertexColor(vertex);
-      }
-      break;
-    case "rumor":
-      var vertices = pickSpreaders(graph);
-      highlightVertices(vertices);
-      var neighbors = pickSpreadersNeighbors(vertices);
-      await sleep(time);
-      for (const vertex in neighbors) {
-        highlightVertices(neighbors[vertex]);
-      }
-      await sleep(time);
-      changeSpreader(neighbors);
-      for (const vertex in neighbors){
-        drawVerticesColor(neighbors[vertex])
-      }
-      break;
-    case "glauber":
-      var vertices = pickVertex(state.numberOfVertices);
-      highlightVertices(vertices);
-      var neighbors = pickSpreadersNeighbors(vertices);
-      await sleep(time);
-      for (const vertex in neighbors) {
-        highlightVertices(neighbors[vertex])
-      }
-      await sleep(time);
-      glauberChange(vertices, neighbors, random);
-      drawVerticesColor(vertices);
-      break;
+function changeRumorOpinion(vertices) {
+  const changes = {}
+  const graph = getGraph()
+  for (const vertex in vertices) {
+  const neighbors = vertices[vertex]
+  for (const neighbor of neighbors){
+    changes[neighbor.name] = [
+      neighbor.level,
+      0,
+      [graph.vertices[vertex]]
+    ]
+    neighbor.level = 0;
   }
-  await sleep(time);
-  resetHighlightGraph();
-}
-export async function skipVoterVertex() {
-  const state = getState();
-  const graph = getGraph();
-  var random = getProtocolRandom();
-  switch (state.protocol) {
-    case "voter":
-      var vertices = pickVertex(state.numberOfVertices);
-      var neighbors = pickNeighbors(graph, vertices, random);
-      changeVoterOpinion(neighbors);
-      break;
-    case "majority":
-      var vertices = pickVertexstate(state.numberOfVertices);
-      var neighbors = pickNeighbors(graph, vertices, random, state.majority);
-      for (const node of vertices) {
-        if (!node.fix) {
-          console.log(node);
-          changeOpinion(neighbors, random);
-        } else {
-          //TODO forward function
-          console.log("poof");
-        }
-      }
-      break;
-    case "rumor":
-      var vertex = pickSpreaders(graph);
-      var neighbors = pickSpreadersNeighbors(vertex);
-      changeSpreader(neighbors);
-      break;
-    case "glauber":
-      var vertex = pickVertex(state.numberOfVertices);
-      var neighbors = pickSpreadersNeighbors(vertex);
-      glauberChange(vertex, neighbors, random);
-      break;
   }
+  updateChanges(changes)
 }
-function glauberChange(vertices, neighbors, random) {
+
+function glauberChange(neighbors,vertices) {
+  const random = getProtocolRandom();
   const state = getState();
   const changes = {};
   const temperature = state.temperature;
@@ -175,7 +249,6 @@ function glauberChange(vertices, neighbors, random) {
 
 }
 function changeGlauberOpinion(vertex, neighbors,changes) {
-  console.log(vertex)
   changes[vertex.name] = [
     vertex.level,
     (vertex.level + 1) % 2,
@@ -183,52 +256,9 @@ function changeGlauberOpinion(vertex, neighbors,changes) {
   ]
   vertex.level = (vertex.level + 1) % 2;
 }
-function pickSpreaders(graph) {
-  const spreader = [];
-  for (const node of graph.vertices) {
-    if (node.level === 0) {
-      spreader.push(node);
-    }
-  }
-  return spreader;
-}
-function pickSpreadersNeighbors(vertices) {
-  const neighbors = {};
-  for (const vertex of vertices) {
-    console.log(vertex)
-    neighbors[vertex.name] = vertex.neighbors
-  }
-  return neighbors;
-}
-function changeSpreader(vertices) {
-  const changes = {}
-  const graph = getGraph()
-  for (const vertex in vertices) {
-  const neighbors = vertices[vertex]
-  for (const neighbor of neighbors){
-    changes[neighbor.name] = [
-      neighbor.level,
-      0,
-      [graph.vertices[vertex]]
-    ]
-    neighbor.level = 0;
-  }
-  }
-  updateChanges(changes)
-}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function pickNeighbors(graph, vertices, random, majority = 1) {
-  const neighbors = {};
-  //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
-  for (const vertex of vertices) {
-    neighbors[vertex.name] = vertex.neighbors
-      .sort(() => 0.5 - random())
-      .slice(0, majority);
-  }
-  return neighbors;
 }
 
 function getMaxOpinions(opinions) {
@@ -244,30 +274,4 @@ function getMaxOpinions(opinions) {
     }
   });
   return result;
-}
-
-function changeOpinion(neighborsArray, random) {
-  const graph = getGraph();
-  const vertices = {}
-  /** own vertex opinion matters in h-majority therefore we include it in opinions */
-  for (const vertex in neighborsArray) {
-    const neighbors = neighborsArray[vertex]
-    const opinions = neighbors.concat(graph.vertices[vertex]);
-    const test = counter(opinions);
-    const maxOpinions = getMaxOpinions(test);
-    /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
-    if (maxOpinions.length === 1) {
-      vertices[vertex] = [ graph.vertices[vertex].level, maxOpinions[0], neighbors]
-      graph.vertices[vertex].level = maxOpinions[0];
-    } else {
-      /** if vertex opinion is one of the max opinions, it stays the same, else choose random */
-      if (!maxOpinions.includes(vertex.level)) {
-        const newOpinion =
-          maxOpinions[Math.floor(random() * maxOpinions.length)];
-        vertices[vertex] = [graph.vertices[vertex].level, newOpinion, neighbors]
-        graph.vertices[vertex].level = newOpinion;
-      }
-    }
-  }
-  updateChanges(vertices);
 }

@@ -1,4 +1,6 @@
 import { state } from "./defaults.js"
+import { updateState } from "./state.js"
+
 
 /** Highlight nodes, links, and tree on a mouseover event
   * @param {Number} i is the color to be highlighted
@@ -115,4 +117,15 @@ export function blendoutGraph(){
 export function resetBlendout(){
   d3.selectAll('circle.graphNode').classed('highlight', false).classed('blendout', false)
   d3.selectAll('line.graphEdge').classed('blendout', false)
+}
+
+export function toggleProtocol(key) {
+  return () => {
+    document.getElementById(key).classList.toggle("show");
+  };
+}
+export function switchProtocol(key) {
+  return () => {
+    updateState({ protocol: key });
+  };
 }
