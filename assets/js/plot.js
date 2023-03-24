@@ -1,12 +1,24 @@
 import { getGraph } from "./graphUpdate.js";
 import { getState} from "./state.js";
-import { getChanges } from "./dynamicChanges.js";
+import { drawStateDistribution,updateStateDistribution } from "./draw.js";
 export const plots = {
   stateDistribution: {
     onClick: togglePlot("stateDistribution"),
+    draw: () => drawStateDistribution('stateDistribution', getSumOfOpinions()),
+    update: () => updateStateDistribution('stateDistribution', getSumOfOpinions()),
+    reset: () => setSumOfOpinions([sumOpinions()])
   },
   donut: {
     onClick: togglePlot("donut"),
+    draw: () => drawStateDistribution('donut', getSumOfOpinions()),
+    update: () => updateStateDistribution('donut', getSumOfOpinions()),
+    reset: () => setSumOfOpinions([sumOpinions()])
+  },
+  changeOnTime:{
+    onClick: togglePlot("changeOnTime"),
+    draw: () => drawStateDistribution('changeOnTime', getSumOfOpinions()),
+    update: () => updateStateDistribution('changeOnTime', getSumOfOpinions()),
+    reset: () => setSumOfOpinions([sumOpinions()]),
   }
   
 
@@ -39,17 +51,22 @@ export function getSumOfOpinions(){
 export function setSumOfOpinions(newSum){
   sumOfOpinions = newSum;
 }
-//TODO doesnt work for 3 opinions. even though blue should stay the same it increments.
-export function changeOpinionSum(){
+
+export function changeOpinionSum(newChanges){
+  console.log(newChanges)
   const sumOfOpinions = getSumOfOpinions();
+  console.log(sumOfOpinions)
   const state = getState();
-  const changes = getChanges();
-  sumOfOpinions[state.step+1] = Object.assign({}, sumOfOpinions[state.step])
-  for (const node in changes[state.step]){
-    const vertex = changes[state.step][node][0]
-    const neighbor = changes[state.step][node][1]
-    sumOfOpinions[state.step+1][vertex]--;
-    sumOfOpinions[state.step+1][neighbor]++;
+  const lastElement = sumOfOpinions[sumOfOpinions.length-1]
+  var sumOfOpinionsCopy = Object.assign({},lastElement)
+  for (const changes of newChanges){
+    for (const vertex in changes){
+      sumOfOpinionsCopy[changes[vertex][0]]--;
+      sumOfOpinionsCopy[changes[vertex][1]]++;
+
+    }
+    sumOfOpinions[[sumOfOpinions.length]] = sumOfOpinionsCopy
+    var sumOfOpinionsCopy = Object.assign({},sumOfOpinionsCopy)
   }
-  
+
 }

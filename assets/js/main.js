@@ -1,14 +1,14 @@
 /* cr.js | MIT License | https://github.com/holgerdell/color-refinement */
 import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
-import { randomGraph} from "./randomGraph.js";
+import { randomNetwork} from "./randomNetwork.js";
 import { getVertexColor, toggleHighlight } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar, updateStateDistribution,drawContextMenu} from "./draw.js";
-import { setChanges } from "./dynamicChanges.js";
-import { sumOpinions, setSumOfOpinions} from "./plot.js";
+import { drawNav, drawControlPanel, drawPlotBar,drawContextMenu,drawSelectors} from "./draw.js";
+import { setChanges, setNetworkArray } from "./dynamicChanges.js";
+import {plots} from "./plot.js";
 let simulation;
 let draggingNode;
-
+export const worker = new Worker(new URL ('./worker.js', import.meta.url));
 /** Recenter the simulation (e.g. after window resize event) */
 export function recenter() {
   const w = document.getElementById("main").offsetWidth;
@@ -105,18 +105,22 @@ async function reload(forceResample = false) {
   if (changedFields.has("protocol")) {
     //TODO on protocol switch, the state distribution of the OLD protocol gets shown and updated, not the new one
     setProtocolRandom(state.protocolSeed)
-    const graph = randomGraph(state.n, state.m, state.seed);
-    setSumOfOpinions([sumOpinions()]);
+    setNetworkArray([]);
+    const graph = randomNetwork();
     drawControlPanel();
     setChanges([]);
     state.step = 0;
     setGraph(graph)
+    worker.postMessage({newGraph:graph})
     drawGraph(state, graph);
-    updateStateDistribution();
+    for (const plot in plots){
+      plots[plot].reset()
+      plots[plot].update()
+    }
     
   }
   if (changedFields.has("step")){
-    drawControlPanel();
+    drawSelectors(document.getElementById('selectorbar'));
   }
   if (
     forceResample ||
@@ -126,17 +130,22 @@ async function reload(forceResample = false) {
     changedFields.has("seed") ||
     changedFields.has("colorSeed") ||
     changedFields.has("protocolSeed") ||
-    changedFields.has("numberOfColors")
+    changedFields.has("numberOfColors") ||
+    changedFields.has("numberOfVertices")
   ) {
     setProtocolRandom(state.protocolSeed)
-    const graph = randomGraph(state.n, state.m, state.seed);
+    setNetworkArray([]);
+    const graph = randomNetwork();
     setGraph(graph);
-    console.log(graph)
-    setSumOfOpinions([sumOpinions()]);
+    worker.postMessage({newGraph:graph})
     setChanges([]);
     state.step = 0;
     drawGraph(state, graph);
-    updateStateDistribution();
+    for (const plot in plots){
+      plots[plot].reset()
+      plots[plot].update()
+    }
+    drawSelectors(document.getElementById('selectorbar'));
     drawControlPanel();
 
 

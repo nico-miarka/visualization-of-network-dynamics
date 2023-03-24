@@ -1,9 +1,10 @@
-import { getState, updateState } from "./state.js";
+import { updateNetworkArray } from "./dynamicChanges.js";
+import { getState } from "./state.js";
 /** return default graph with n vertices
  * @param {Number} n vertices
  * @return {Graph}
  */
-function create_graph(n) {
+function createNetwork(n) {
   const graph = { vertices: [], edges: [] };
   const state = getState();
   const random = Math.seedrandom
@@ -28,8 +29,7 @@ function create_graph(n) {
       name: i,
       neighbors: [],
       level: Math.floor(random() * (numberOfColors - 1) + 0.5),
-      fix: false,
-      
+      fix: false,  
     };
   }
 }
@@ -38,8 +38,8 @@ function create_graph(n) {
 
 function addEdge(graph, edge) {
   graph.edges.push(edge);
-  edge.target.neighbors.push(edge.source.name);
-  edge.source.neighbors.push(edge.target.name);
+  edge.target.neighbors.push(edge.source);
+  edge.source.neighbors.push(edge.target);
 }
 
 function makeRandomEdge(graph, random) {
@@ -66,11 +66,11 @@ function addRandomEdges(graph, m, random, maxNumEdges) {
 }
 
 function randomWalk(n, m, random, maxNumEdges) {
-  const graph = create_graph(n);
+  const graph = createNetwork(n);
   const unvisited = new Set(graph.vertices);
   const visited = new Set();
   var currentVertex =
-    graph.vertices[Math.floor(random() * graph.vertices.length)];
+  graph.vertices[Math.floor(random() * graph.vertices.length)];
   unvisited.delete(currentVertex);
   visited.add(currentVertex);
   while (unvisited.size !== 0) {
@@ -89,20 +89,20 @@ function randomWalk(n, m, random, maxNumEdges) {
   return graph;
 }
 /** Sample a random graph G(n,m)
- * @param {Number} n vertices
- * @param {Number} m edges
  * @return {Graph}
  */
-export function randomGraph(n, m, seed) {
-  const maxNumEdges = (n * (n - 1)) / 2;
-  const random = Math.seedrandom ? new Math.seedrandom(seed) : Math.random; // eslint-disable-line
-  const graph = randomWalk(n, m, random, maxNumEdges);
+export function randomNetwork() {
+  const state = getState();
+  const maxNumEdges = (state.n * (state.n - 1)) / 2;
+  const random = Math.seedrandom ? new Math.seedrandom(state.seed) : Math.random; // eslint-disable-line
+  const graph = randomWalk(state.n, state.m, random, maxNumEdges);
+  updateNetworkArray(graph.vertices.map(obj => ({...obj})))
   return graph;
 }
 
 function crtrees(n, m, random, maxNumEdges) {
   if (n < 0 || m < 0 || m > maxNumEdges) return undefined;
-  const graph = create_graph(n);
+  const graph = createNetwork(n);
   const randomInt = (min, max) => Math.floor(random() * (max - min) + min);
   const state = {};
   for (let i = 0; i < m; i++) {

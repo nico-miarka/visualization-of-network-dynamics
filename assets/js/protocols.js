@@ -2,16 +2,17 @@ import { getGraph, getProtocolRandom } from "./graphUpdate.js";
 import { counter } from "./lib/counter.js";
 import {
   grayOutGraph,
-  drawVertexColor,
   resetHighlightGraph,
   highlightVertices,
   drawVerticesColor,
   toggleProtocol,
   switchProtocol,
 } from "./visuals.js";
-import { updateChanges, reloadSeed } from "./dynamicChanges.js";
+import { updateChanges, reloadSeed} from "./dynamicChanges.js";
 import { getState } from "./state.js";
-export async function changeVertex(time = getState().time) {
+
+
+export async function changeVertices(time = getState().time) {
   const state = getState();
   grayOutGraph();
   var vertices = protocols[state.protocol].pickVertex()
@@ -22,7 +23,7 @@ export async function changeVertex(time = getState().time) {
     highlightVertices(neighbors[vertex]);
   }
   await sleep(time);
-  protocols[state.protocol].changeOpinion(neighbors,vertices)
+  protocols[state.protocol].changeProtocol(neighbors,vertices)
   if (state.protocol == "rumor"){
     for (const vertex in neighbors){
       drawVerticesColor(neighbors[vertex])
@@ -33,15 +34,12 @@ export async function changeVertex(time = getState().time) {
   await sleep(time);
   resetHighlightGraph();
 }
+
+
 export async function skipVoterVertex() {
   const state = getState();
-  grayOutGraph();
   var vertices = protocols[state.protocol].pickVertex()
-  highlightVertices(vertices);
   var neighbors = protocols[state.protocol].pickNeighbors(vertices)
-  for (const vertex in neighbors) {
-    highlightVertices(neighbors[vertex]);
-  }
   protocols[state.protocol].changeOpinion(neighbors,vertices)
   if (state.protocol == "rumor"){
     for (const vertex in neighbors){
@@ -50,26 +48,7 @@ export async function skipVoterVertex() {
   } else {
     drawVerticesColor(vertices)
   }
-  resetHighlightGraph();
 }
-export const topics = {
-  opinion: {
-    protocols: ["voter", "majority"],
-    onClick: toggleProtocol("opinion"),
-  },
-  glauber: {
-    protocols: ["glauber", "filler"],
-    onClick: toggleProtocol("glauber"),
-  },
-  rumor: {
-    protocols: ["more", "SIRmodel", "rumor"],
-    onClick: toggleProtocol("rumor"),
-  },
-  reload: {
-    protocols: ["graph", "color", "algo"],
-    onClick: toggleProtocol("reload"),
-  },
-};
 
 export const protocols = {
   more: {
@@ -81,13 +60,13 @@ export const protocols = {
   rumor: {
     pickVertex: pickSpreaders,
     pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
-    changeOpinion: (neighbors)=> changeRumorOpinion(neighbors),
+    changeProtocol: (neighbors)=> changeRumorOpinion(neighbors),
     onClick: switchProtocol("rumor"),
   },
   glauber: {
     pickVertex: pickVertex,
     pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
-    changeOpinion: (neighbors, vertices) => glauberChange(neighbors,vertices),
+    changeProtocol: (neighbors, vertices) => glauberChange(neighbors,vertices),
     onClick: switchProtocol("glauber"),
   },
   filler: {
@@ -96,15 +75,17 @@ export const protocols = {
   voter: {
     pickVertex:pickVertex,
     pickNeighbors: (vertices) => pickNeighbors(vertices,1),
-    changeOpinion: (neighbors)=> changeVoterOpinion(neighbors),
+    changeProtocol: (neighbors)=> changeVoterOpinion(neighbors),
     onClick: switchProtocol("voter"),
   },
   majority: {
     pickVertex:pickVertex,
     pickNeighbors: (vertices) => pickNeighbors(vertices,getState().majority),
-    changeOpinion: (neighbors)=> changeMajorityOpinion(neighbors),
+    changeProtocol: (neighbors)=> changeMajorityOpinion(neighbors),
     onClick: switchProtocol("majority"),
   },
+};
+export const reloader = {
   graph: {
     onClick: reloadSeed("seed"),
   },
@@ -114,7 +95,8 @@ export const protocols = {
   algo: {
     onClick: reloadSeed("protocolSeed"),
   },
-};
+  onclick:toggleProtocol()
+}
 export function pickVertex() {
   const numberOfVertices = getState().numberOfVertices
   const graph = getGraph();
@@ -169,6 +151,7 @@ function changeVoterOpinion(neighbors) {
 }
 function changeMajorityOpinion(neighborsArray) {
   const random = getProtocolRandom();
+
   const graph = getGraph();
   const vertices = {}
   /** own vertex opinion matters in h-majority therefore we include it in opinions */

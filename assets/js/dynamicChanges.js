@@ -1,9 +1,9 @@
 import { getState, updateState } from "./state.js";
-import { changeVertex, skipVoterVertex } from "./voter.js";
-import { changeOpinionSum } from "./plot.js";
-import { updateStateDistribution } from "./draw.js";
+import { changeVertices, skipVoterVertex } from "./protocols.js";
+import { changeOpinionSum, getSumOfOpinions, plots } from "./plot.js";
 import { getGraph } from "./graphUpdate.js";
 import { drawVertexColor,grayOutGraph,highlightVertices, drawVerticesColor,resetHighlightGraph, highlightVertex } from "./visuals.js";
+import {worker} from './main.js'
 let running = false;
 let intervalId;
 
@@ -14,7 +14,55 @@ export function reloadSeed(seed) {
     updateState(state);
   };
 }
-
+export function forwards() {
+  return async () => {
+    const state = getState();
+    const changes = getChanges();
+    if (changes.length == state.step){
+    const newStep = state.step+1
+    worker.postMessage({state: state,newStep:newStep,changes:changes,currentNetwork:getGraph()})
+    worker.onmessage = (event) => {
+        updateState(event.data.state)
+        const graph = getGraph();
+        for (const vertex in graph.vertices){
+          graph.vertices[vertex].level = event.data.currentNetwork[vertex].level
+        }
+    updateChanges(event.data.changes)
+    changeOpinionSum(event.data.changes);
+    drawVerticesColor(graph.vertices)
+    }
+    for (const plot in plots){
+      plots[plot].update()
+    }
+    } else {
+      changesForward();
+      updateState({ step: ++state.step });
+    }
+  }
+}
+export function backward(){
+  return async () => {
+  const state = getState();
+  if (state.step > 0){
+    const currentNetwork = getGraph();
+    const changes = getChanges()[state.step-1];
+    console.log(changes)
+    const graph = getGraph();
+    console.log(changes)
+    grayOutGraph()
+    const vertices = currentNetwork.vertices.filter(vertex => changes.hasOwnProperty(vertex.name));
+    console.log(vertices)
+    highlightVertices(vertices)
+    for (const vertex in changes){
+      graph.vertices[vertex].level = changes[vertex][0]
+    }
+    drawVerticesColor(vertices)
+    await sleep(state.time);
+    resetHighlightGraph()
+    updateState({step: --state.step})
+  }
+}
+}
 function startStop() {
   return async () => {
     const state = getState();
@@ -27,41 +75,6 @@ function startStop() {
       running = true;
     }
   };
-}
-export function forwards() {
-  return async () => {
-    const state = getState();
-    changes = getChanges();
-    if (changes.length == state.step){
-    await changeVertex();
-    changeOpinionSum();
-    updateStateDistribution();
-    updateState({ step: ++state.step });
-    } else {
-      changesForward();
-      updateState({ step: ++state.step });
-    }
-  };
-}
-export function backward(){
-  return async () => {
-  const state = getState();
-  if (state.step > 0){
-    const changes = getChanges()[state.step-1];
-    const graph = getGraph();
-    grayOutGraph()
-    const vertices = graph.vertices.filter(vertex=> Object.keys(changes).includes(vertex.name.toString()))
-    highlightVertices(vertices)
-    await sleep(state.time);
-    for (const vertex in changes){
-      graph.vertices[vertex].level = changes[vertex][0]
-    }
-    drawVerticesColor(vertices)
-    await sleep(state.time);
-    resetHighlightGraph()
-    updateState({step: --state.step})
-  }
-}
 }
 export async function changesForward(){
   const state = getState();
@@ -85,49 +98,48 @@ export async function changesForward(){
   await sleep(state.time)
   resetHighlightGraph();
 }
-export function skipBackward(){
+export function skipToStep(newStep){
   const state = getState();
-  if (state.step > 0){
-    const changes = getChanges()[state.step-1];
+  if (state.step >= 0){
+    const newNetwork = getNetworkArray()[newStep]
     const graph = getGraph();
-    console.log(graph)
-    grayOutGraph()
-    const vertices = graph.vertices.filter(vertex=> Object.keys(changes).includes(vertex.name.toString()))
-    highlightVertices(vertices)
-    for (const vertex in changes){
-      graph.vertices[vertex].level = changes[vertex][0]
+    for (const vertex in newNetwork){
+      graph.vertices[vertex].level = newNetwork[vertex].level
     }
-    drawVerticesColor(vertices)
-    resetHighlightGraph()
-    updateState({ step: --state.step });
+    drawVerticesColor(graph.vertices)
+    updateState({ step: newStep });
 }
 }
 
-
+//TODO fix issue where plot doesnt get drawn and networkarray doesnt work properly
 export async function skipSteps(newStep) {
   const state = getState();
-  console.log(state.step, newStep);
+  const networkArray = getNetworkArray();
+  if (state.step < newStep && newStep < networkArray.length){
+    skipToStep(newStep)
+  }
+  else if (state.step < newStep){
+  skipToStep(networkArray.length-1)
   while (state.step < newStep) {
-    if (changes.length == state.step){
       await skipVoterVertex();
       changeOpinionSum();
-      updateStateDistribution();
+      for (const plot in plots){
+        plots[plot].update()
+      }
       updateState({ step: ++state.step });
-      } else {
-        //TODO fix skipforward bug
-        changesForward();
-        updateState({ step: ++state.step });
+      const graph = getGraph();
+      updateNetworkArray(graph.vertices.map(obj => ({...obj})))
       }
   }
-  while (state.step > newStep) {
-    skipBackward();
-    updateState({ step: --state.step });
+  if (state.step > newStep) {
+    skipToStep(newStep);
   }
   const graph = getGraph();
   for (const vertex of graph.vertices) {
     drawVertexColor(vertex);
   }
 }
+
 export const protocolFunctions = {
   backwards: backward,
   startStop: startStop,
@@ -141,10 +153,9 @@ export const icons = {
 
 var changes = [];
 
-export function updateChanges(values) {
-  const state = getState();
-  const changes = getChanges();
-  changes[state.step] = values;
+export function updateChanges(newChanges) {
+  var changes = getChanges();
+  changes =changes.concat(newChanges)
   setChanges(changes);
 }
 export function getChanges() {
@@ -156,4 +167,17 @@ export function setChanges(newChanges) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+var array = [];
+export function getNetworkArray(){
+  return array;
+}
+export function setNetworkArray(newArray){
+  array = newArray;
+}
+export function updateNetworkArray(newNetwork){
+  const state = getState();
+  const array = getNetworkArray()// create a new copy of the array
+  array[state.step] = newNetwork;
+  setNetworkArray(array);
 }
