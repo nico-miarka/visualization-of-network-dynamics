@@ -51,27 +51,6 @@ export async function skipVoterVertex() {
 }
 
 export const protocols = {
-  more: {
-    onClick: switchProtocol("majority"),
-  },
-  SIRmodel: {
-    onClick: switchProtocol("voter"),
-  },
-  rumor: {
-    pickVertex: pickSpreaders,
-    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
-    changeProtocol: (neighbors)=> changeRumorOpinion(neighbors),
-    onClick: switchProtocol("rumor"),
-  },
-  glauber: {
-    pickVertex: pickVertex,
-    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
-    changeProtocol: (neighbors, vertices) => glauberChange(neighbors,vertices),
-    onClick: switchProtocol("glauber"),
-  },
-  filler: {
-    onClick: switchProtocol("voter"),
-  },
   voter: {
     pickVertex:pickVertex,
     pickNeighbors: (vertices) => pickNeighbors(vertices,1),
@@ -84,6 +63,21 @@ export const protocols = {
     changeProtocol: (neighbors)=> changeMajorityOpinion(neighbors),
     onClick: switchProtocol("majority"),
   },
+  rumor: {
+    pickVertex: pickSpreaders,
+    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
+    changeProtocol: (neighbors)=> changeRumorOpinion(neighbors),
+    onClick: switchProtocol("rumor"),
+  },
+  SIRmodel: {
+    onClick: switchProtocol("voter"),
+  },
+  glauber: {
+    pickVertex: pickVertex,
+    pickNeighbors: (vertices) => pickSpreadersNeighbors(vertices),
+    changeProtocol: (neighbors, vertices) => glauberChange(neighbors,vertices),
+    onClick: switchProtocol("glauber"),
+  },
 };
 export const reloader = {
   graph: {
@@ -94,8 +88,7 @@ export const reloader = {
   },
   algo: {
     onClick: reloadSeed("protocolSeed"),
-  },
-  onclick:toggleProtocol()
+  }
 }
 export function pickVertex() {
   const numberOfVertices = getState().numberOfVertices
@@ -129,7 +122,6 @@ function pickSpreaders() {
 function pickSpreadersNeighbors(vertices) {
   const neighbors = {};
   for (const vertex of vertices) {
-    console.log(vertex)
     neighbors[vertex.name] = vertex.neighbors
   }
   return neighbors;
@@ -219,10 +211,7 @@ function glauberChange(neighbors,vertices) {
       Math.E ** (-changeInEnergy / temperature) /
       (1 + Math.E ** (-changeInEnergy / temperature));
     const randomNum = random();
-    console.log(flipChance);
-    console.log(randomNum);
     if (randomNum <= flipChance) {
-      console.log("success");
       changeGlauberOpinion(vertex, neighbors,changes);
     } else {
       changes[vertex.name] = [vertex.level, vertex.level, neighbors[vertex.name]]

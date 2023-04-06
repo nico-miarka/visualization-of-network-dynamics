@@ -1,8 +1,8 @@
 import { getState, updateState } from "./state.js";
-import { changeVertices, skipVoterVertex } from "./protocols.js";
-import { changeOpinionSum, getSumOfOpinions, plots } from "./plot.js";
+import { skipVoterVertex } from "./protocols.js";
+import { changeOpinionSum, plots } from "./plot.js";
 import { getGraph } from "./graphUpdate.js";
-import { drawVertexColor,grayOutGraph,highlightVertices, drawVerticesColor,resetHighlightGraph, highlightVertex } from "./visuals.js";
+import { drawVertexColor,grayOutGraph,highlightVertices, drawVerticesColor,resetHighlightGraph, highlightVertex,animations } from "./visuals.js";
 import {worker} from './main.js'
 let running = false;
 let intervalId;
@@ -17,7 +17,7 @@ export function reloadSeed(seed) {
 export function forwards() {
   return async () => {
     const state = getState();
-    const changes = getChanges();
+    var changes = getChanges();
     if (changes.length == state.step){
     const newStep = state.step+1
     worker.postMessage({state: state,newStep:newStep,changes:changes,currentNetwork:getGraph()})
@@ -27,13 +27,18 @@ export function forwards() {
         for (const vertex in graph.vertices){
           graph.vertices[vertex].level = event.data.currentNetwork[vertex].level
         }
-    updateChanges(event.data.changes)
-    changeOpinionSum(event.data.changes);
-    drawVerticesColor(graph.vertices)
+        updateChanges(event.data.changes)
+        changeOpinionSum(event.data.changes);
+        for (let i=1;i<plotBar.children.length;i++){
+          const parentElement = document.getElementById('plot' + i)
+          const selectElement = parentElement.querySelector("#plotType");
+          plots[selectElement.value].update('plot' + i)
+        }
     }
-    for (const plot in plots){
-      plots[plot].update()
-    }
+    await sleep(100)
+    const graph = getGraph()
+    const newChanges = getChanges()
+    animations[state.animation].animation(graph,graph.vertices.filter(vertex => newChanges[newChanges.length-1].hasOwnProperty(vertex.name)),newChanges[newChanges.length-1])
     } else {
       changesForward();
       updateState({ step: ++state.step });
@@ -46,20 +51,23 @@ export function backward(){
   if (state.step > 0){
     const currentNetwork = getGraph();
     const changes = getChanges()[state.step-1];
-    console.log(changes)
     const graph = getGraph();
-    console.log(changes)
     grayOutGraph()
     const vertices = currentNetwork.vertices.filter(vertex => changes.hasOwnProperty(vertex.name));
-    console.log(vertices)
     highlightVertices(vertices)
     for (const vertex in changes){
       graph.vertices[vertex].level = changes[vertex][0]
     }
+    await sleep(state.time)
     drawVerticesColor(vertices)
     await sleep(state.time);
     resetHighlightGraph()
     updateState({step: --state.step})
+    for (let i=1;i<plotBar.children.length;i++){
+      const parentElement = document.getElementById('plot' + i)
+      const selectElement = parentElement.querySelector("#plotType");
+      plots[selectElement.value].update('plot' + i)
+    }
   }
 }
 }
@@ -71,7 +79,7 @@ function startStop() {
       clearInterval(intervalId);
       running = false;
     } else {
-      intervalId = setInterval(forwardFunction, state.time * 4);
+      intervalId = setInterval(forwardFunction, (1050-state.time) * 4);
       running = true;
     }
   };
@@ -88,7 +96,7 @@ export async function changesForward(){
   await sleep(state.time)
   for (const name in changes){
     const neighbor = changes[name][2]
-    highlightVertices(neighbor)
+    highlightVertices(graph.vertices.filter(graphNode => neighbor.some(changesNode => changesNode.name === graphNode.name)))
   }
   await sleep(state.time)
   for (const name in changes){
@@ -97,6 +105,11 @@ export async function changesForward(){
   }
   await sleep(state.time)
   resetHighlightGraph();
+  for (let i=1;i<plotBar.children.length;i++){
+    const parentElement = document.getElementById('plot' + i)
+    const selectElement = parentElement.querySelector("#plotType");
+    plots[selectElement.value].update('plot' + i)
+  }
 }
 export function skipToStep(newStep){
   const state = getState();
@@ -110,8 +123,6 @@ export function skipToStep(newStep){
     updateState({ step: newStep });
 }
 }
-
-//TODO fix issue where plot doesnt get drawn and networkarray doesnt work properly
 export async function skipSteps(newStep) {
   const state = getState();
   const networkArray = getNetworkArray();
@@ -163,21 +174,9 @@ export function getChanges() {
 }
 export function setChanges(newChanges) {
   changes = newChanges;
+  worker.postMessage({newChanges:newChanges})
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-var array = [];
-export function getNetworkArray(){
-  return array;
-}
-export function setNetworkArray(newArray){
-  array = newArray;
-}
-export function updateNetworkArray(newNetwork){
-  const state = getState();
-  const array = getNetworkArray()// create a new copy of the array
-  array[state.step] = newNetwork;
-  setNetworkArray(array);
 }

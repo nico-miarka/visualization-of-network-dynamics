@@ -41,7 +41,7 @@ body {
       "nav header plotBar"
       "nav main plotBar"
       "nav control plotBar";
-    grid-template-columns: 300px 1fr auto;
+    grid-template-columns: 200px 1fr auto;
     grid-template-rows: 0 1fr;
   }
 }
@@ -51,12 +51,19 @@ main {
   overflow: hidden;
 }
 
-nav,
-#crtrees {
-  font-size: 0;
-  background-color: #eee;
+nav {
+  grid-area: nav;
+  display: flex;
+  flex-direction: column;
+  font-size: 40px;
+  width: 200px;
+  background-color: #0c1e35;
+  color: #7d84ab;
+  font-family: 'Poppins', sans-serif;
+  height: 100vh;
+  overflow-y: auto; 
+  max-height: 100%;
 }
-
 h1 {
   font-weight: normal;
 }
@@ -79,75 +86,96 @@ header > div {
   line-height: 1.5em;
 }
 
-nav {
-  grid-area: nav;
-  overflow-y: auto; /* adds vertical scrollbar if needed */
-  max-height: 100vh;
-  display: flex;
-  font-size: 40px;
-}
-
 @media only screen and (min-width: 0px) {
   nav {
     flex-direction: column;
-    width: 300px;
+    width: 200px;
   }
 }
-
-.opinion {
-  background-color: red;
+.buttonContainer{
+  height:50px;
+  transition: all 0.3s ease-in-out;
 }
-.glauber {
-  background-color: blue;
+.buttonContainer.show > .button {
+  color:white;
 }
-.rumor {
-  background-color: green;
-}
-.reload {
-  background-color: orange;
-}
-.sync {
-  background-color: purple;
-}
-div.button {
-  display: inline-block;
+.dropdown-item.active{
+  color:white;
+  background-color: #7d84ab;
 }
 nav div.button {
-  color: white;
-  font-size: 20px;
+  font-size: 20\px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
+  margin-top: 20px;
+  margin-left: 40px;
   height: 50px;
   width: 100%;
-  border-bottom: 1px solid black;
   line-height: 0;
-  overflow: visible;
   cursor: pointer;
+  transition: color 0.3s ease-in-out;
 }
-
-.dropdown {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
+nav div.button:hover{
+  color:white;
 }
 .dropdown-item {
   display: flex;
-  font-size: 20px;
+  font-size: 17px;
   align-items: center;
   justify-content: center;
-  color: white;
   list-style-type: none;
   height: 50px;
   width: 100%;
-  border-bottom: 1px solid black;
   line-height: 0;
-  background-color: gray;
-  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+.dropdown-item:hover {
+  color:white;
+}
+.buttonContainer.show > .dropdown-item{
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.buttonContainer.show > #selectorbar{
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+#colorPickerList{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 17px;
+  width: 200px;
+  list-style-type: none;;
+  opacity: 0;
+  pointer-events: none;
+}
+#colorPickerList li{
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+#colorPickerList li label{
+  display: inline-block;
+  width: 60px;
+  text-align: left;
+  margin-right:0px;
+}
+.buttonContainer.show > #colorPickerList{
+  opacity: 1;
+  height: auto;
+  pointer-events: auto;
   cursor: pointer;
 }
 .show {
-  max-height: 300px;
+  height: auto;
 }
 i.material-icons {
   border-radius: 50%;
@@ -165,65 +193,66 @@ i.material-icons {
   overflow: visible;
 }
 
-div.button > div {
-  display: block;
-  visibility: hidden;
-  position: absolute;
-  line-height: normal;
-  z-index: 10;
-  left: 0;
-  bottom: 0;
-  text-align: left;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  font-size: 1.5rem;
-  font-family: Georgia, "Times New Roman", Times, serif;
-}
+
 div.button:hover i.material-icons,
 div.button:hover > div {
   background-color: #cecef6;
   visibility: visible;
 }
 #plotBar{
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  background-color: #eee;
   grid-area: plotBar;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  width:400px;
+  height: 100vh;
+  overflow-y: auto; 
+  max-height: 100%;
+}
+#plotBar::-webkit-scrollbar{
+  display: none;
+}
+nav::-webkit-scrollbar{
+  display: none;
 }
 .plotContainer{
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 50px;
+  background-color: #f0f0f0;
   transition: width 0.3s, height 0.3s, background-color 0.3s;
   transform-origin: top right;
 }
 .plotButton {
-  height: 100px;
-  width:100px;
-  background-color: red;
+  height: 50px;
+  width:100%;
+  display: flex;
+  border-bottom: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   transition: width 0.3s, height 0.3s, background-color 0.3s;
   transform-origin: top right;
+  cursor:pointer
 }
-.plotContainer.showPlot .plotButton{
-  position:absolute;
-  top: 5px;
-  right: 5px;
-  width:15px;
-  height: 15px;
-  background-color: red;
+.plotButton select{
+  display: flex;
+  margin-left: 10px;
 
+}
+#colorPickerList{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style-type: none;
 }
 .plotContainer.showPlot{
   width:100%;
   height:300px;
-  background-color: white;
-  resize: vertical;
-  overflow: hidden;
-}
-#plotBar .showPlot{
-  width:400px;
 }
 .plotContainer svg{
   width:90%;
@@ -233,8 +262,21 @@ div.button:hover > div {
 }
 .plotContainer.showPlot svg{
   width:95%;
-  height:95%;
+  height:100%;
   opacity: 1;
+}
+.closeButton{
+  width:20px;
+  height: 20px;
+  margin-left: 120px
+}
+.closeButton::after{
+  display: block;
+  content: "x";
+  position: relative;
+  font-size: 23px;
+  left: 0px;
+  top: -6px;
 }
 #control {
   grid-area: control;
@@ -247,27 +289,29 @@ div.button:hover > div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 30px;
-  width: 300px;
+  font-size: 17px;
+  width: 200px;
   list-style-type: none;;
+  opacity: 0;
+  pointer-events: none;
 }
 #selectorbar li{
   width: 100%;
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   justify-content: center;
 }
 #selectorbar li label{
   display: inline-block;
-  width: 90px;
+  width: 60px;
   text-align: left;
-  margin-right:10px;
+  margin-right:0px;
 }
 .selectorList{
   display: flex;
 }
 
-input{
+nav input{
   text-align: center;
   width: 100px;
   margin-right: 10px;
@@ -283,9 +327,12 @@ input[type="number"] {
   appearance: textfield;
   border: none;
   background-color: transparent;
-  color: black;
+  color: white;
   text-align: center;
-  width: 90px; /* adjust as needed */
+  width: 60px;
+}
+#colorPickerList ul input{
+  width:30px;
 }
 #controlbar {
   display: flex;
@@ -310,7 +357,10 @@ input[type="number"] {
   font-size: 50px;
 }
 #selectorbar .material-symbols-outlined {
-  font-size: 30px;
+  font-size: 25px;
+}
+#colorPickerList .material-symbols-outlined {
+  font-size: 25px;
 }
 .center-screen {
   height: 99%;
@@ -334,26 +384,29 @@ main .loading-animation {
   display: block;
 }
 
-circle {
+rect {
   stroke: none;
 }
 
-circle.highlight {
+rect.highlight {
   stroke: black;
   stroke-width: 2px;
 }
-
-circle.nonhighlight {
-  filter: grayscale(100%);
+.vertical-line{
+  cursor: grab;
 }
-circle.blendout{
+rect.nonhighlight {
+  fill:gray;
+}
+rect.blendout{
   filter: blur(15px);
   transition: filter 0.2s;
 }
-circle.fixed{
-  filter: brightness(65%);
+rect.fixed{
+  rx:0;
+  ry:0;
 }
-circle.nonhighlight.fixed{
+rect.nonhighlight.fixed{
   filter: brightness(65%) grayscale(100%);
 }
 line {

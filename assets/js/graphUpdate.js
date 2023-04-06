@@ -6,6 +6,7 @@ export function getGraph(){
 }
 export function setGraph(newGraph){
     graph = newGraph
+    worker.postMessage({newGraph:newGraph})
 }
 
 var protocolRandom = function(){}

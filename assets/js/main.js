@@ -2,10 +2,11 @@
 import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomNetwork} from "./randomNetwork.js";
-import { getVertexColor, toggleHighlight } from "./visuals.js";
+import { getVertexColor, setColors, toggleHighlight } from "./visuals.js";
 import { drawNav, drawControlPanel, drawPlotBar,drawContextMenu,drawSelectors,drawColorPicker} from "./draw.js";
-import { setChanges, setNetworkArray } from "./dynamicChanges.js";
-import {plots} from "./plot.js";
+import { setChanges } from "./dynamicChanges.js";
+import {setSumOfOpinions,sumOpinions,plotData,plots} from "./plot.js";
+import { update } from "./lib/hash.js";
 let simulation;
 let draggingNode;
 export const worker = new Worker(new URL ('./worker.js', import.meta.url));
@@ -30,9 +31,8 @@ function drawGraph(state, graph) {
     .nodes(graph.vertices)
     .force("charge", d3.forceManyBody().strength(state.charge))
     .force("link", d3.forceLink(graph.edges).distance(50).strength(0.9));
-    d3.selectAll("circle.graphNode")
+    d3.selectAll("rect.graphNode")
     .on("classChange", () => {
-    console.log('test')
     simulation.force("fixed", d3.forceManyBody().strength(0.05));
     });
   svg
@@ -43,14 +43,17 @@ function drawGraph(state, graph) {
     .attr("class", "graphEdge");
 
     svg
-    .selectAll("circle.graphNode")
+    .selectAll("rect.graphNode")
     .data(graph.vertices)
     .enter()
-    .append("circle")
+    .append("rect")
     .attr("class", "graphNode")
-    .attr("r", 10)
-    .attr("cx", w / 2)
-    .attr("cy", h / 2)
+    .attr("x", 10)
+    .attr("y", 10)
+    .attr("width", 20)
+    .attr("height", 20)
+    .attr('rx',10)
+    .attr('ry',10)
     .call(
       d3
         .drag()
@@ -82,14 +85,12 @@ function drawGraph(state, graph) {
 
   d3.select("main").classed("loading", false);
   updateState(state);
-  /**color */
-  d3.selectAll("circle.graphNode").attr("fill", (vertex) => {
+  d3.selectAll("rect.graphNode").attr("fill", (vertex) => {
     return getVertexColor(vertex);
   });
 }
 function onNodeClick(node){
   toggleHighlight(node)
-  console.log(node)
 }
 /** Sample and draw new graph
  */
@@ -103,21 +104,35 @@ async function reload(forceResample = false) {
     state.colorSeed = Math.random().toString(36).substr(2, 5);
   }
   if (changedFields.has("protocol")) {
-    //TODO on protocol switch, the state distribution of the OLD protocol gets shown and updated, not the new one
+    if (state.protocol === "glauber" || state.protocol === "rumor"){
+      state.numberOfColors = 2;
+    } else if (state.protocol === "SIRmodel"){
+      state.numberOfColors = 3;
+    }
+    if (state.protocol === "rumor"){
+      setColors("#90ee90",1)
+      drawColorPicker(document.getElementById('colorPickerList'))
+    } else {
+      setColors("#add8e6",1)
+      drawColorPicker(document.getElementById('colorPickerList'))
+    }
     setProtocolRandom(state.protocolSeed)
-    setNetworkArray([]);
     const graph = randomNetwork();
-    drawControlPanel();
-    setChanges([]);
     state.step = 0;
     setGraph(graph)
-    worker.postMessage({newGraph:graph})
-    drawGraph(state, graph);
-    for (const plot in plots){
-      plots[plot].reset()
-      plots[plot].update()
+    drawControlPanel();
+    setSumOfOpinions([sumOpinions()])
+    setChanges([]);
+    for (const datum in plotData){
+      plotData[datum].reset()
     }
-    
+    drawGraph(state, graph);
+    for (let i=1;i<plotBar.children.length;i++){
+      const parentElement = document.getElementById('plot' + i)
+      const selectElement = parentElement.querySelector("#plotType");
+      plots[selectElement.value].update('plot' + i)
+    }
+    drawSelectors(document.getElementById('selectorbar'));
   }
   if (changedFields.has("step")){
     drawSelectors(document.getElementById('selectorbar'));
@@ -135,22 +150,23 @@ async function reload(forceResample = false) {
   ) {
     drawColorPicker(document.getElementById('colorPickerList'))
     setProtocolRandom(state.protocolSeed)
-    setNetworkArray([]);
     const graph = randomNetwork();
     setGraph(graph);
-    worker.postMessage({newGraph:graph})
+    for (const dataType in plotData){
+      plotData[dataType].reset()
+    }
     setChanges([]);
     state.step = 0;
     drawGraph(state, graph);
-    for (const plot in plots){
-      plots[plot].reset()
-      plots[plot].update()
-    }
     drawSelectors(document.getElementById('selectorbar'));
     drawControlPanel();
+    const plotBar = document.getElementById('plotBar')
+    for (let i=1;i<plotBar.children.length;i++){
+      const parentElement = document.getElementById('plot' + i)
+      const selectElement = parentElement.querySelector("#plotType");
+      plots[selectElement.value].update('plot' + i)
+    }
 
-
-    /** TODO add button to do one iteration */
   } else {
     if (changedFields.has("charge")) {
       simulation
@@ -207,9 +223,9 @@ function main() {
       .attr("y1", (e) => e.source.y)
       .attr("x2", (e) => e.target.x)
       .attr("y2", (e) => e.target.y);
-    d3.selectAll("circle.graphNode")
-      .attr("cx", (v) => v.x)
-      .attr("cy", (v) => v.y);
+    d3.selectAll("rect.graphNode")
+      .attr("x", (v) => v.x-10)
+      .attr("y", (v) => v.y-10);
   });
 
   document

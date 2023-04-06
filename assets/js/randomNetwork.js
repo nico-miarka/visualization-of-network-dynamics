@@ -1,4 +1,3 @@
-import { updateNetworkArray } from "./dynamicChanges.js";
 import { getState } from "./state.js";
 /** return default graph with n vertices
  * @param {Number} n vertices
@@ -19,10 +18,20 @@ function createNetwork(n) {
       graph.vertices[i] = {
         name: i,
         neighbors: [],
-        level: 2,
+        level: 1,
       };
     }
     graph.vertices[Math.floor(random()*graph.vertices.length)].level = 0
+  } 
+  else if (state.protocol === "SIRmodel"){
+    for (let i = 0; i < n; i++) {
+      graph.vertices[i] = {
+        name: i,
+        neighbors: [],
+        level: 1,
+      };
+    }
+  graph.vertices[Math.floor(random()*graph.vertices.length)].level = 0
   } else {
   for (let i = 0; i < n; i++) {
     graph.vertices[i] = {
@@ -96,7 +105,6 @@ export function randomNetwork() {
   const maxNumEdges = (state.n * (state.n - 1)) / 2;
   const random = Math.seedrandom ? new Math.seedrandom(state.seed) : Math.random; // eslint-disable-line
   const graph = randomWalk(state.n, state.m, random, maxNumEdges);
-  updateNetworkArray(graph.vertices.map(obj => ({...obj})))
   return graph;
 }
 

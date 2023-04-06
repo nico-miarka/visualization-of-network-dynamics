@@ -27,7 +27,6 @@ importScripts('https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrando
 
 self.addEventListener("message", function(event) {
   if (event.data.seed){
-    console.log(event.data.seed)
       protocolRandom =  Math.seedrandom
           ? new Math.seedrandom(event.data.seed)
           : Math.random
@@ -36,6 +35,9 @@ self.addEventListener("message", function(event) {
   if (event.data.newGraph){
     vertices = event.data.newGraph.vertices
   } 
+  if (event.data.newChanges){
+    setChanges(event.data.newChanges)
+  }
   if (event.data.state) {
   skipSteps(event.data.state,event.data.newStep,event.data.changesLength,event.data.currentNetwork)
 
@@ -46,11 +48,15 @@ async function skipSteps(state,newStep,changesLength,currentNetwork) {
   skipForward(state,newStep)
   state.step = newStep
   }
+  if (state.step < parseInt(newStep) && state.step < changes.length){
+    skipForward(state,changes.length)
+    state.step = changes.length
+  }
   var newChanges = []
   var counter = 0;
   let newChangesStep;
   while (state.step < newStep) {
-    newChangesStep = await skipVoterVertex(state,currentNetwork);
+    newChangesStep = await protocolExecution(state,currentNetwork);
     newChanges[counter] = newChangesStep
     ++state.step;
     ++counter;
@@ -79,7 +85,6 @@ function skipBackwards(state,newStep){
 function skipForward(state,newStep){
   const changes = getChanges();
   const vertices = getVertices()
-  console.log(changes[state.step])
   while (state.step < newStep){
   for (const vertex in changes[state.step]){
     vertices[vertex].level = changes[state.step][vertex][1]
@@ -88,32 +93,37 @@ function skipForward(state,newStep){
   }
   setVertices(vertices)
 }
-async function skipVoterVertex(state,currentNetwork) {
+async function protocolExecution(state,currentNetwork) {
   var vertices = protocols[state.protocol].pickVertex(state,currentNetwork)
   var neighbors = protocols[state.protocol].pickNeighbors(state,vertices)
-  return protocols[state.protocol].changeProtocol(neighbors, vertices, state)
+  return protocols[state.protocol].changeProtocol(neighbors, state,vertices)
 }
 const protocols = {
   rumor: {
     pickVertex: pickSpreaders,
     pickNeighbors: (state,vertices) => pickSpreadersNeighbors(vertices),
-    changeProtocol: (neighbors)=> changeRumorOpinion(neighbors),
+    changeProtocol: (neighbors,state,vertices)=> changeRumorOpinion(neighbors,state),
   },
   glauber: {
     pickVertex:(state,currentNetwork) => pickVertex(state,currentNetwork),
     pickNeighbors: (state,vertices) => pickSpreadersNeighbors(vertices),
-    changeProtocol: (neighbors,vertices,state ) => glauberChange(neighbors,vertices,state),
+    changeProtocol: (neighbors,state,vertices) => glauberChange(neighbors,state),
   },
   voter: {
     pickVertex:(state,currentNetwork) => pickVertex(state,currentNetwork),
     pickNeighbors: (state,vertices) => pickNeighbors(vertices,1),
-    changeProtocol: (neighbors)=> changeVoterOpinion(neighbors),
+    changeProtocol: (neighbors,state,vertices)=> changeVoterOpinion(neighbors,state),
   },
   majority: {
     pickVertex:(state,currentNetwork) => pickVertex(state,currentNetwork),
     pickNeighbors: (state,vertices) => pickNeighbors(vertices,state.majority),
-    changeProtocol: (neighbors)=> changeMajorityOpinion(neighbors),
+    changeProtocol: (neighbors,state,vertices)=> changeMajorityOpinion(neighbors,state),
   },
+  SIRmodel: {
+    pickVertex: pickSpreaders,
+    pickNeighbors: (state,vertices) => pickSpreadersNeighbors(vertices),
+    changeProtocol: (neighbors,state,vertices)=> changeSIRvertex(neighbors,state),
+  }
 };
 
 function pickVertex(state) {
@@ -124,7 +134,6 @@ function pickVertex(state) {
   const shuffled = newVertices.sort(() => 0.5 - random()).slice(0, numberOfVertices);
   return shuffled
 }
-//TODO fix fixen und aus dem nichts kommende farben
 function pickNeighbors(vertices, majority = 1) {
   const random = getProtocolRandom();
   const neighbors = {};
@@ -143,7 +152,6 @@ function pickSpreaders() {
       spreader.push(vertex);
     }
   }
-  console.log(vertices)
   return spreader;
 }
 function pickSpreadersNeighbors(vertices) {
@@ -153,8 +161,54 @@ function pickSpreadersNeighbors(vertices) {
   }
   return neighbors;
 }
-function changeVoterOpinion(neighbors) {
+function changeSIRvertex(neighbors,state){
+  const changesStep = {}
+  const random = getProtocolRandom()
   const vertices = getVertices()
+  const verticesCopy = vertices.map(obj => ({...obj}))
+  for (const vertex in neighbors){
+    for (const neighbor of neighbors[vertex]){
+      if (neighbor.level === 1){
+        const infectionChance = random();
+        if (infectionChance < state.beta){
+          changesStep[neighbor.name] = [
+            1,
+            0,
+            [vertices[vertex]]
+          ]
+          if (!state.sync){
+            neighbor.level = 0
+          } else {
+            verticesCopy[neighbor.name].level = 0
+          }
+          
+        }
+      }
+    }
+    const recoveryChance = random();
+    if (recoveryChance < state.gamma){
+      changesStep[vertex] = [
+        0,
+        2,
+        [vertices[vertex]]
+      ]
+      if (!state.sync){
+        vertices[vertex].level = 2
+      } else {
+        verticesCopy[vertex].level = 2
+      }
+    }
+  }
+  if (state.sync){
+    for (const vertex in vertices){
+      vertices[vertex].level = verticesCopy[vertex].level
+    }
+  }
+  return changesStep
+}
+function changeVoterOpinion(neighbors,state) {
+  const vertices = getVertices()
+  const verticesCopy = vertices.map(obj => ({...obj}))
   const changesStep = {};
     for (const vertex in neighbors) {
     if (!vertices[vertex].fix) {
@@ -163,33 +217,43 @@ function changeVoterOpinion(neighbors) {
         neighbors[vertex][0].level,
         neighbors[vertex],
       ];
+      if(!state.sync){
       vertices[vertex].level = neighbors[vertex][0].level;
+    } else {
+      verticesCopy[vertex].level = neighbors[vertex][0].level
+    }
+  }
+}
+  if (state.sync) {
+    for (const vertex in neighbors){
+      if (!vertices[vertex].fix) {
+        vertices[vertex].level = verticesCopy[vertex].level
+      }
     }
   }
   setVertices(vertices)
   return changesStep
 }
-function changeMajorityOpinion(neighborsArray) {
+function changeMajorityOpinion(neighborsArray,state) {
   const random = getProtocolRandom();
   const vertices = getVertices();
+  const verticesCopy = Object.assign({},vertices)
   const newChangesStep = {}
-  /** own vertex opinion matters in h-majority therefore we include it in opinions */
   for (const vertex in neighborsArray) {
-    const neighbors = neighborsArray[vertex]
-    const opinions = neighbors.concat(vertices[vertex]);
-    const test = counter(opinions);
-    const maxOpinions = getMaxOpinions(test);
-    /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
-    if (maxOpinions.length === 1) {
-      newChangesStep[vertex] = [ vertices[vertex].level, maxOpinions[0], neighbors]
-      vertices[vertex].level = maxOpinions[0];
-    } else {
-      /** if vertex opinion is one of the max opinions, it stays the same, else choose random */
-      if (!maxOpinions.includes(vertex.level)) {
-        const newOpinion =
-          maxOpinions[Math.floor(random() * maxOpinions.length)];
-        newChangesStep[vertex] = [vertices[vertex].level, newOpinion, neighbors]
-        vertices[vertex].level = newOpinion;
+    if (!vertices[vertex].fix){
+      const neighbors = neighborsArray[vertex]
+      const opinions = neighbors.concat(vertices[vertex]);
+      const test = counter(opinions);
+      const maxOpinions = getMaxOpinions(test);
+      if (maxOpinions.length === 1) {
+        newChangesStep[vertex] = [ vertices[vertex].level, maxOpinions[0], neighbors]
+        vertices[vertex].level = maxOpinions[0];
+      } else {
+        if (!maxOpinions.includes(vertex.level)) {
+          const newOpinion = maxOpinions[Math.floor(random() * maxOpinions.length)];
+          newChangesStep[vertex] = [vertices[vertex].level, newOpinion, neighbors]
+          vertices[vertex].level = newOpinion;
+        }
       }
     }
   }
@@ -197,51 +261,96 @@ function changeMajorityOpinion(neighborsArray) {
   return newChangesStep
 }
 
-function changeRumorOpinion(vertices) {
+function changeRumorOpinion(vertices,state) {
   const newChangesStep = {}
   const networkVertices = getVertices()
+  const networkCopy = networkVertices.map(obj => ({...obj}))
   for (const vertex in vertices) {
   const neighbors = vertices[vertex]
   for (const neighbor of neighbors){
-    newChangesStep[neighbor.name] = [
-      neighbor.level,
-      0,
-      [networkVertices[vertex]]
-    ]
-    neighbor.level = 0;
+    if (neighbor.level != 0){
+      newChangesStep[neighbor.name] = [
+        neighbor.level,
+        0,
+        [networkVertices[vertex]]
+      ]
+      if(!state.sync){
+        neighbor.level = 0;
+      } else {
+        networkCopy[neighbor.name].level = 0
+      }
+    }
   }
+  }
+  if (state.sync) {
+    for (const vertex in networkVertices){
+        networkVertices[vertex].level = networkCopy[vertex].level
+    }
   }
   return newChangesStep
 }
 
-function glauberChange(neighbors,vertices,state) {
+function glauberChange(neighbors,state) {
   const random = getProtocolRandom();
+  const networkVertices = getVertices()
+  const networkCopy = networkVertices.map(obj => ({...obj}))
   const newChangesStep = {};
   const temperature = state.temperature;
   let vertexSpin;
-  for (const vertex of vertices){
-    if (vertex.level == 0) {
-      vertexSpin = 1;
-    } else {
-      vertexSpin = -1;
-    }
-    var sum = vertexSpin;
-    for (const node of neighbors[vertex.name]) {
-      if (node.level == 0) {
-        sum += 1;
+  if (!state.sync){
+    for (const vertex in neighbors){
+      if (networkVertices[vertex].level == 0) {
+        vertexSpin = 1;
       } else {
-        sum -= 1;
+        vertexSpin = -1;
+      }
+      var sum = vertexSpin;
+      for (const node of neighbors[networkVertices[vertex].name]) {
+        if (node.level == 0) {
+          sum += 1;
+        } else {
+          sum -= 1;
+        }
+      }
+      const changeInEnergy = 2 * vertexSpin * sum;
+      const flipChance =
+        Math.E ** (-changeInEnergy / temperature) /
+        (1 + Math.E ** (-changeInEnergy / temperature));
+      const randomNum = random();
+      if (randomNum <= flipChance) {
+        newChangesStep[networkVertices[vertex].name] = changeGlauberOpinion(networkVertices[vertex], neighbors,changes);
+      } else {
+        newChangesStep[networkVertices[vertex].name] = [networkVertices[vertex].level , networkVertices[vertex].level , neighbors[networkVertices[vertex].name]]
       }
     }
-    const changeInEnergy = 2 * vertexSpin * sum;
-    const flipChance =
-      Math.E ** (-changeInEnergy / temperature) /
-      (1 + Math.E ** (-changeInEnergy / temperature));
-    const randomNum = random();
-    if (randomNum <= flipChance) {
-      newChangesStep[vertex.name] = changeGlauberOpinion(vertex, neighbors,changes);
-    } else {
-      newChangesStep[vertex.name] = [vertex.level, vertex.level, neighbors[vertex.name]]
+  } else {
+    for (const vertex in neighbors){
+      if (networkCopy[vertex].level == 0) {
+        vertexSpin = 1;
+      } else {
+        vertexSpin = -1;
+      }
+      var sum = vertexSpin;
+      for (const node of neighbors[networkCopy[vertex].name]) {
+        if (node.level == 0) {
+          sum += 1;
+        } else {
+          sum -= 1;
+        }
+      }
+      const changeInEnergy = 2 * vertexSpin * sum;
+      const flipChance =
+        Math.E ** (-changeInEnergy / temperature) /
+        (1 + Math.E ** (-changeInEnergy / temperature));
+      const randomNum = random();
+      if (randomNum <= flipChance) {
+        newChangesStep[networkCopy[vertex].name] = changeGlauberOpinion(networkCopy[vertex], neighbors,changes);
+      } else {
+        newChangesStep[networkCopy[vertex].name] = [networkCopy[vertex].level, networkCopy[vertex].level, neighbors[networkCopy[vertex].name]]
+      }
+    }
+    for (const vertex in networkVertices){
+      networkVertices[vertex].level = networkCopy[vertex].level
     }
   }
   return newChangesStep
@@ -270,9 +379,6 @@ function getMaxOpinions(opinions) {
     }
   });
   return result;
-}
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 function counter (array){
   var count = {};
