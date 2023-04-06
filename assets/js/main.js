@@ -3,7 +3,7 @@ import { getState, updateState, getStateChanges } from "./state.js";
 import { setGraph, setProtocolRandom} from "./graphUpdate.js";
 import { randomNetwork} from "./randomNetwork.js";
 import { getVertexColor, toggleHighlight } from "./visuals.js";
-import { drawNav, drawControlPanel, drawPlotBar,drawContextMenu,drawSelectors} from "./draw.js";
+import { drawNav, drawControlPanel, drawPlotBar,drawContextMenu,drawSelectors,drawColorPicker} from "./draw.js";
 import { setChanges, setNetworkArray } from "./dynamicChanges.js";
 import {plots} from "./plot.js";
 let simulation;
@@ -133,6 +133,7 @@ async function reload(forceResample = false) {
     changedFields.has("numberOfColors") ||
     changedFields.has("numberOfVertices")
   ) {
+    drawColorPicker(document.getElementById('colorPickerList'))
     setProtocolRandom(state.protocolSeed)
     setNetworkArray([]);
     const graph = randomNetwork();

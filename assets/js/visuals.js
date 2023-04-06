@@ -129,3 +129,15 @@ export function switchProtocol(key) {
     updateState({ protocol: key });
   };
 }
+export var colors = [
+  "tomato",
+  "lightblue",
+  "lightgreen",
+  "yellow",
+  "purple",
+  "orange",
+  "gray",
+]
+export function getColors(){
+  return colors
+}

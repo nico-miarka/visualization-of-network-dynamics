@@ -7,7 +7,7 @@ import {
 } from "./dynamicChanges.js";
 import { getState, updateState } from "./state.js";
 import { getSumOfOpinions, plots,changeOpinionSum } from "./plot.js";
-import { resetBlendout,blendoutGraph, highlightVertex, drawVerticesColor, toggleProtocol} from "./visuals.js";
+import { resetBlendout,blendoutGraph, highlightVertex, drawVerticesColor, toggleProtocol, getColors} from "./visuals.js";
 import { getGraph } from "./graphUpdate.js";
 import { contextFunctions } from "./contextFunctions.js";
 import {protocols,reloader} from "./protocols.js"
@@ -30,6 +30,10 @@ export function drawNav() {
   drawSelectors(selectorbar)
   nav.appendChild(button);
   nav.appendChild(selectorbar)
+  const ul = document.createElement('ul')
+  ul.id = "colorPickerList"
+  drawColorPicker(ul)
+  nav.appendChild(ul)
 }
 function drawReloader(parent){
   const button = document.createElement('div')
@@ -145,6 +149,30 @@ export function drawSelectors(parent){
     listitem.appendChild(list)
     parent.appendChild(listitem)
   }
+}
+export function drawColorPicker(parent){
+    while (parent.firstChild) {
+    parent.removeChild(parent.lastChild);
+  }
+  const colorSelection = document.createElement('select');
+  const state = getState()
+  const colors = getColors()
+  for (var i=0;i<state.numberOfColors;i++){
+    const colorOption = document.createElement('option')
+    colorOption.innerText = colors[i];
+    colorOption.style.backgroundColor = colors[i];
+    colorSelection.appendChild(colorOption)
+    
+  }
+  parent.appendChild(colorSelection)
+  colorSelection.addEventListener("change", function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const selectedColor = selectedOption.style.backgroundColor;
+    selectElement.style.backgroundColor = selectedColor;
+  });
+  const colorPicker = document.createElement("input")
+  colorPicker.type = "color"
+  parent.appendChild(colorPicker)
 }
 const selectors = {
   speedSelector:{
