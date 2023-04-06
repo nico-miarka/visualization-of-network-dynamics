@@ -101,7 +101,6 @@ export function pickVertex() {
 function pickNeighbors(vertices, majority = 1) {
   const random = getProtocolRandom();
   const neighbors = {};
-  //TODO vertex is a list, to allow multiple vertices and their neighbors to be picked in one round. add logic if wanna implement
   for (const vertex of vertices) {
     neighbors[vertex.name] = vertex.neighbors
       .sort(() => 0.5 - random())
@@ -152,7 +151,6 @@ function changeMajorityOpinion(neighborsArray) {
     const opinions = neighbors.concat(graph.vertices[vertex]);
     const test = counter(opinions);
     const maxOpinions = getMaxOpinions(test);
-    /** TODO what if only one neighbor in h-majority? Draw => no change or Voter => change */
     if (maxOpinions.length === 1) {
       vertices[vertex] = [ graph.vertices[vertex].level, maxOpinions[0], neighbors]
       graph.vertices[vertex].level = maxOpinions[0];

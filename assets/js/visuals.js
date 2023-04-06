@@ -84,7 +84,6 @@ export function radius (v) {
 export function getVertexColor(vertex){
   return getColors()[vertex.level]
 }
-//TODO highlightvertices and vertex reset the fix 
 export function toggleHighlight (vertex){
   const node = d3.selectAll('rect.graphNode').filter(function(d){return d.name === vertex.name});
   const isHighlighted = node.classed('highlight');

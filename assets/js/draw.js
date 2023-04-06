@@ -713,8 +713,6 @@ svg.append('g')
 svg.append('g')
   .call(d3.axisLeft(y))
   .attr('transform', `translate(${margin.left},0)`)
-
-// color palette
   
 }
 export function drawBarChart(id){

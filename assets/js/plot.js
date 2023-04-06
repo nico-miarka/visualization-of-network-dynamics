@@ -42,7 +42,6 @@ export const plots = {
         .keys(keys)
         .value((d, key) => d[key])
         (data);
-      // Show the areas
       svg.selectAll(".layer")
       .data(stackedData)
       .enter()

@@ -6,7 +6,6 @@ import { getVertexColor, setColors, toggleHighlight } from "./visuals.js";
 import { drawNav, drawControlPanel, drawPlotBar,drawContextMenu,drawSelectors,drawColorPicker} from "./draw.js";
 import { setChanges } from "./dynamicChanges.js";
 import {setSumOfOpinions,sumOpinions,plotData,plots} from "./plot.js";
-import { update } from "./lib/hash.js";
 let simulation;
 let draggingNode;
 export const worker = new Worker(new URL ('./worker.js', import.meta.url));
@@ -175,9 +174,6 @@ async function reload(forceResample = false) {
         .restart();
     }
   }
-  /**if (changedFields !== undefined && changedFields.size !== 0) {
-    drawNavElements(state)
-  } */
 }
 
 function addto(field, stepsize, min, max) {
@@ -197,8 +193,6 @@ const STEPSIZE = {
 
 const getMin = (field) => (field === "charge" ? -Infinity : 0);
 const getMax = (field) => (field === "charge" ? 0 : Infinity);
-/** TODO add maxnumedges as ceiling for m */
-/** TODO add 2 as floor for n */
 const increase = (field) =>
   addto(field, STEPSIZE[field], getMin(field), getMax(field));
 const decrease = (field) =>
