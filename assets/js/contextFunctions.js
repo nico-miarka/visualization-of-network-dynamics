@@ -26,11 +26,9 @@ function toggleFix(){
     }
     worker.postMessage({newGraph:graph})
     highlightedNodes.classed('highlight', function(d) {
-        // use the current state of the "nonhighlight" class to toggle it
         return !d3.select(this).classed('highlight');
       });
     highlightedNodes.classed('fixed', function(d) {
-        // use the current state of the "nonhighlight" class to toggle it
         return !d3.select(this).classed('fixed');
       })
       .dispatch('classChange');
